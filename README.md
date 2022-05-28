@@ -15,3 +15,5 @@
  ```
  npm run build
  ```
+
+Tested with Node 16.0.0 and NPM 7.10.0

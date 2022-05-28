@@ -1,0 +1,60 @@
+{
+  "name": "navcoin-wallet-chrome-extension",
+  "version": "1.0.0",
+  "description": "Navcoin Wallet Chrome Extension",
+  "scripts": {
+    "deploy": "./deploy.sh",
+    "lint": "eslint . --ext js,json",
+    "lint:fix": "eslint . --fix --ext js,json",
+    "start": "webpack-dev-server",
+    "build": "webpack --mode production",
+    "test": "yarn lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "files": [
+    "/src/index.js",
+    "/src/index.html"
+  ],
+  "author": "Navcoin",
+  "license": "MIT",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {
+    "@babel/runtime": "^7.17.9",
+    "@liutianv1/bls-signatures": "0.0.1",
+    "async-mutex": "^0.3.1",
+    "axios": "^0.27.1",
+    "css-loader": "^5.2.6",
+    "moment": "^2.29.3",
+    "navcoin-js": "^1.1.129",
+    "net": "^1.0.2",
+    "sass-loader": "^10.1.1",
+    "satoshi-bitcoin": "^1.0.5",
+    "style-loader": "^2.0.0",
+    "tls": "0.0.1",
+    "vue": "2.5.22",
+    "vue-clipboard2": "^0.3.3",
+    "vuex": "^3.0.1"
+  },
+  "devDependencies": {
+    "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^6.0.2",
+    "css-loader": "^5.2.6",
+    "eslint": "^6.8.0",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-json": "^2.0.1",
+    "eth-sig-util": "^2.5.3",
+    "html-webpack-plugin": "^4.5.2",
+    "prettier": "^2.3.2",
+    "vue-loader": "^14.2.4",
+    "vue-template-compiler": "2.5.22",
+    "webpack": "^4.46.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  }
+}

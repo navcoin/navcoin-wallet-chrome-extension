@@ -8,17 +8,18 @@
 				    <div class="uk-dropdown-grid uk-child-width-1-2@m" uk-grid>
 				        <div>
 				            <ul class="uk-nav uk-dropdown-nav">
-				                <li class="uk-nav-header">Apps</li>
+				                <li class="uk-nav-header">dApps</li>
 				                <li><a href='#' v-on:click="changePage('trusted_sites')">Trusted Sites</a></li>
 				            </ul>
 				        </div>
 				        <div>
 				            <ul class="uk-nav uk-dropdown-nav">
-				                <li class="uk-nav-header">Settings</li>
-				                <li><a href="#" v-on:click="changePage('backup-wallet')">Backup</a></li>
 				                <li class="uk-nav-header">Message</li>
 				                <li><a href="#" v-on:click="changePage('sign-message')">Sign message</a></li>
 				                <li><a href="#" v-on:click="changePage('verify-message')">Verify message</a></li>
+				                <li class="uk-nav-header">Wallet</li>
+				                <li><a href="#" v-on:click="changePage('backup-wallet')">Backup Wallet</a></li>
+				                <li><a href='#' v-on:click="changePage('remove-wallet')">Remove Wallet</a></li>
 				                <li class="uk-nav-divider"></li>
 				                <li><a href='#' v-on:click="changePage('about')">About</a></li>
 				            </ul>
@@ -64,22 +65,33 @@
 				<span v-for="(word,i) in wordArrayConfirm">
 					{{word}}
 				</span>
-			</div>			
+			</div>
 			<button class="uk-button uk-button-primary" v-on:click="confirmVerifySeedPhrases()"><i class="fa-solid fa-check"></i>&nbsp;Verify</button>
 			<button class="uk-button uk-button-default uk-align-right" v-on:click="skipVerifySeedPhrases()"><i class="fa-solid fa-arrow-right-long"></i>&nbsp;Skip</button>
 		</div>
-
 		<div class="uk-container" v-if="page=='backup-wallet'" style="margin-top:15px;">
 			<h4>Backup Wallet</h4>
 			<p v-if="mnemonics">{{mnemonics}}</p>
 			<button v-if="mnemonics" class="uk-button uk-button-default" v-on:click="doCopy(mnemonics)"><i class="fa-solid fa-copy"></i>&nbsp;Copy</button>
+		</div>
+		<div class="uk-container" v-if="page=='remove-wallet'" style="margin-top:15px;">
+			<div class="uk-alert-danger uk-margin" uk-alert>
+				<a class="uk-alert-close" uk-close></a>
+				<p>You will need your seed phrases to restore the wallet after deleting it. Please be sure to take note of your seed phrases.</p>
+			</div>
+			<div class="uk-margin">
+				<input class="uk-input" placeholder="Password" type="password" v-model="v_password"></input>
+			</div>
+			<div class="uk-margin">
+				<button :disabled="!password" class="uk-button uk-button-primary uk-width-1-1" v-on:click="removeWallet()"><i class="fa-solid fa-trash"></i>&nbsp;Remove Wallet</button>
+			</div>
 		</div>
 		<div class="uk-container" v-if="page=='sign-message'" style="margin-top:15px;">
 			<div class="uk-margin">
 				<input class="uk-input" placeholder="Message" type="text" v-model="message"></input>
 			</div>
 			<div class="uk-margin">
-				<button :disabled="!message" class="uk-button uk-button-primary" v-on:click="signMessage()"><i class="fa-solid fa-signature"></i>&nbsp;Sign Message</button>
+				<button :disabled="!message" class="uk-button uk-button-primary uk-width-1-1" v-on:click="signMessage()"><i class="fa-solid fa-signature"></i>&nbsp;Sign Message</button>
 			</div>
 			<div class="uk-margin" v-show="signedMessage">
 				<h5>Signed Message : </h5>
@@ -98,9 +110,9 @@
 				<input class="uk-input" placeholder="Signature" type="text" v-model="vSignature"></input>
 			</div>
 			<div class="uk-margin">
-				<button :disabled="!vMessage||!vAddress||!vSignature" class="uk-button uk-button-primary" v-on:click="verifyMessage()"><i class="fa-solid fa-check-double"></i>&nbsp;Verify Message</button>
+				<button :disabled="!vMessage||!vAddress||!vSignature" class="uk-button uk-button-primary uk-width-1-1" v-on:click="verifyMessage()"><i class="fa-solid fa-check-double"></i>&nbsp;Verify Message</button>
 			</div>
-		</div>		
+		</div>
 		<div class="uk-container" v-if="page=='about'" style="margin-top:15px;">
 			<center>
 				<img style="width:50%;height:auto" src="images/nav-logo-border.png">
@@ -115,7 +127,7 @@
 					<p>bitcore-lib {{njs.wallet.bitcore.version}}</p>
 		        </div>
 		    </center>
-		</div>		
+		</div>
 		<div class="uk-container" v-if="page=='welcome'" style="margin-top:15px;">
 			<center>
 				<img style="width:50%;height:auto" src="images/nav-logo-border.png">
@@ -183,15 +195,20 @@
 			  <p>
 			    You assume any and all risks associated with the use of the Software. We reserve the right to modify this Agreement from time to time.
 			  </p>
-	        <div class="uk-margin">
-	        	<button class="uk-button uk-button-primary" v-on:click="changePage('create-wallet')"><i class="fa-solid fa-right-long"></i>&nbsp;I accept the license agreement</button>
-	        </div>
-	        <div class="uk-margin">
-				<button class="uk-button uk-button-secondary" v-on:click="goBack()"><i class="fa-solid fa-arrow-left"></i>&nbsp;Back</button>
-	        </div>
-		</div>		
+			<div class="uk-margin">
+				<button class="uk-button uk-button-primary uk-width-1-1" v-on:click="changePage('select-network')"><i class="fa-solid fa-right-long"></i>&nbsp;I accept the license agreement</button>
+			</div>
+			<div class="uk-margin">
+				<button class="uk-button uk-button-secondary uk-width-1-1" v-on:click="goBack()" style="margin-bottom:15px;"><i class="fa-solid fa-arrow-left"></i>&nbsp;Back</button>
+			</div>
+		</div>
 		<div class="uk-container" v-if="page=='wallet-loading'" style="margin-top:15px;">
 			<div uk-spinner></div>
+		</div>
+		<div class="uk-container" v-if="page=='select-network'" style="margin-top:15px;">
+			<h5 class="uk-heading-divider">Please choose a network</h5>
+			<button class="uk-button uk-button-default uk-width-1-1 uk-text-capitalize uk-padding-small uk-margin-small" v-for="(network,index) in networks" v-on:click="setNetwork(network)">{{network.name}}</button>
+			<button class="uk-button uk-button-secondary uk-width-1-1" v-on:click="goBack()"><i class="fa-solid fa-arrow-left"></i>&nbsp;Back</button>
 		</div>
 		<div class="uk-container" v-if="page=='create-wallet'" style="margin-top:15px;">
 			<ul class="uk-subnav uk-subnav-pill" style="width:100%" :active="(isImportActive?1:0)" uk-switcher="animation: uk-animation-slide-left-medium, uk-animation-slide-right-medium">
@@ -202,7 +219,7 @@
 			    <li>
 				    <form>
 					    <fieldset class="uk-fieldset">
-					        <legend class="uk-legend">Create Wallet</legend>
+					        <legend class="uk-legend">Create New Wallet</legend>
 					        <div class="uk-margin">
 					            <input class="uk-input" type="text" placeholder="Wallet name" v-model="wallet_name">
 					        </div>
@@ -213,7 +230,7 @@
 					            <input class="uk-input" type="password" placeholder="Password (again)" v-model="password_again">
 					        </div>
 					        <div class="uk-margin">
-					        	<button v-show="!busy" class="uk-button uk-button-primary" v-on:click="createWallet()"><i class="fa-solid fa-asterisk"></i>&nbsp;Create Wallet</button>
+					        	<button v-show="!busy" class="uk-button uk-button-primary uk-width-1-1" v-on:click="createWallet()"><i class="fa-solid fa-asterisk"></i>&nbsp;Create Wallet</button>
 					        </div>
 					    </fieldset>
 					</form>
@@ -235,37 +252,50 @@
 					            <input class="uk-input" type="password" placeholder="Password (again)" v-model="password_again">
 					        </div>
 					        <div class="uk-margin">
-					        	<button v-show="!busy" class="uk-button uk-button-primary" v-on:click="importWallet()"><i class="fa-solid fa-file-import"></i>&nbsp;Import Wallet</button>
+					        	<button v-show="!busy" class="uk-button uk-button-primary uk-width-1-1" v-on:click="importWallet()"><i class="fa-solid fa-file-import"></i>&nbsp;Import Wallet</button>
 					        </div>
 					    </fieldset>
-					</form>			    
+					</form>
 				</li>
 			</ul>
-			<button class="uk-button uk-button-secondary" v-on:click="goBack()"><i class="fa-solid fa-arrow-left"></i>&nbsp;Back</button>
+			<button class="uk-button uk-button-secondary uk-width-1-1" v-on:click="goBack()"><i class="fa-solid fa-arrow-left"></i>&nbsp;Back</button>
 		</div>
 		<div class="uk-container" v-if="page=='select-wallet'">
 			<div class="uk-margin" style="margin-top:15px;">
 				<h5>Please choose a wallet</h5>
 			</div>
-			<ul v-for="(wallet, $index) in wallets" class="uk-list uk-list-divider" @click="setActiveWallet(wallet)">
-				<li style="background:#f3f3f3;padding:5px;margin:0px;">
-					<a class="uk-link-reset" href="#">
-						<i class="fa-solid fa-wallet"></i>&nbsp;{{wallet}}<span class="fa-solid fa-check uk-align-right" v-show="wallet==active_wallet_name"></span>&nbsp;
-					</a>
-				</li>
-			</ul>
-			<fieldset class="uk-fieldset">
+			<div v-for="(wallet, $index) in wallets" :class="{ 'uk-background-secondary uk-light': wallet.name+'_'+wallet.type+'_'+wallet.network==active_wallet_name, 'uk-background-muted': wallet.name+'_'+wallet.type+'_'+wallet.network!=active_wallet_name }" class="uk-card uk-border-rounded" style="padding:5px;cursor: pointer;" @click="setActiveWallet(wallet)">
+				<article class="uk-comment">
+				    <header class="uk-comment-header">
+				        <div class="uk-grid-medium uk-flex-middle" uk-grid>
+				            <div class="uk-width-auto" style="width:64px;">
+				            	<center>
+									<i v-if="wallet.name+'_'+wallet.type+'_'+wallet.network==active_wallet_name" class="fa-2x fa-solid fa-wallet uk-text-primary"></i>
+									<i v-else class="fa-2x fa-solid fa-wallet"></i>
+								</center>
+							</div>
+				            <div class="uk-width-expand">
+				                <div><a class="uk-link-reset" href="#">{{wallet.name}}</a></div>
+				                <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+				                    <li>{{wallet.network}}</li>
+				                </ul>
+				            </div>
+				        </div>
+				    </header>
+				</article>
+			</div>
+			<fieldset class="uk-fieldset uk-margin-small">
 				<div class="uk-margin">
 					<input class="uk-input" placeholder="Password" type="password" v-model="password"></input>
 				</div>
 				<div class="uk-margin">
-					<button class="uk-button uk-button-secondary" v-on:click="unlockWallet()"><i class="fa-solid fa-lock"></i>&nbsp;Unlock Wallet</button>
+					<button class="uk-button uk-button-secondary uk-width-1-1" v-on:click="unlockWallet()"><i class="fa-solid fa-lock"></i>&nbsp;Unlock Wallet</button>
 				</div>
 				<div class="uk-margin">
-					<button class="uk-button uk-button-primary" v-on:click="createNewWallet()"><i class="fa-solid fa-plus"></i>&nbsp;Create New Wallet</button>
+					<button class="uk-button uk-button-primary uk-width-1-1" v-on:click="createNewWallet()"><i class="fa-solid fa-plus"></i>&nbsp;Create New Wallet</button>
 				</div>
 				<div class="uk-margin">
-					<button class="uk-button uk-button-primary" v-on:click="importExistingWallet()"><i class="fa-solid fa-file-import"></i>&nbsp;Import Wallet</button>
+					<button class="uk-button uk-button-primary uk-width-1-1" v-on:click="importExistingWallet()"><i class="fa-solid fa-file-import"></i>&nbsp;Import Wallet</button>
 				</div>
 			</fieldset>
 		</div>
@@ -620,9 +650,17 @@ export default
 	data()
 	{
 		return {
+			networks:
+			[
+				{name:'Mainnet',code:'mainnet'},
+				{name:'Testnet',code:'testnet'}
+			],
+			walletType:'next',
+			network:'testnet',
 			wallet_name:'',
 			password:'',
 			password_again:'',
+			v_password:undefined,
 			mnemonics:undefined,
 			busy:false,
 			active_wallet_already_exist:false,
@@ -704,11 +742,21 @@ export default
 		console.log("Listing wallets...");
 		njs.wallet.WalletFile.ListWallets().then((wallets) =>
 		{
+			let i=0;
 			console.log(wallets);
-			vm.wallets=wallets;
+			wallets.forEach((wallet) =>
+			{
+				if (wallet)
+				{
+					console.log(i+"->"+wallet);
+					i++;
+					let arr=wallet.split("_");
+					vm.wallets.push({name: arr[0],type: (arr[1]?arr[1]:"next"),network: (arr[2]?arr[2]:"mainnet")})
+				}
+			});
 			if (wallets.length==1)
 			{
-				vm.setActiveWallet(wallets[0]);
+				vm.setActiveWallet(vm.wallets[0]);
 			}
 			if (wallets.length>0)
 			{
@@ -745,7 +793,7 @@ export default
 			    	vm.is_action_processed=false;
 			    	vm.action=msg.message;
 			    	vm.sender=msg.sender;
-					vm.processAction();			    	
+					vm.processAction();
 			    }
 		    });
 	 	}
@@ -755,9 +803,15 @@ export default
 	{
 		this.qrcode_nav=new QRCode(this.prefix+this.publicAddress).svg();
 		this.qrcode_xnav=new QRCode(this.prefix+this.privateAddress).svg();
-	},	
+	},
 	methods:
 	{
+		setNetwork(network)
+		{
+			console.log("Changing network to -> " + network.code);
+			this.network=network.code;
+			this.changePage("create-wallet");
+		},
 		prev()
 		{
 			this.currentPage--;
@@ -842,7 +896,7 @@ export default
 			}
 			catch (err)
 			{
-				UIkit.modal.alert(e.message);	
+				UIkit.modal.alert(e.message);
 			}
 		},
 		verifyMessage()
@@ -855,6 +909,21 @@ export default
 			catch (e)
 			{
 				UIkit.notification(e.message);
+			}
+		},
+		removeWallet()
+		{
+			if (this.v_password==this.password)
+			{
+				njs.wallet.WalletFile.RemoveWallet(this.active_wallet_name).then(() =>
+				{
+					console.log("Wallet "+this.active_wallet_name+" removed.");
+					UIkit.notification("<i class='fas fa-check'></i>&nbsp;Wallet removed", {status:'success'})
+				});
+			}
+			else
+			{
+					UIkit.notification("<i class='fas fa-close'></i>&nbsp;Invalid password", {status:'danger'})
 			}
 		},
 		send()
@@ -875,18 +944,18 @@ export default
 							{
 								if (result.error)
 								{
-									UIkit.modal.alert(result.error);	
+									UIkit.modal.alert(result.error);
 								}
 								else
 								{
 									vm.address=null;
 									vm.amount=null;
-									UIkit.modal.alert("Success");	
+									UIkit.modal.alert("Success");
 								}
 							})
 							.catch((e) =>
 							{
-								UIkit.modal.alert(e.message);	
+								UIkit.modal.alert(e.message);
 							});
 						}
 						, function ()
@@ -896,7 +965,7 @@ export default
 					})
 					.catch((e) =>
 					{
-						UIkit.modal.alert(e.message);	
+						UIkit.modal.alert(e.message);
 					});
 				}
 				catch(e)
@@ -964,7 +1033,7 @@ export default
 			}
 			else
 			{
-				this.active_wallet_name=this.wallet_name;
+				this.active_wallet_name=this.wallet_name+"_"+this.walletType+"_"+this.network;
 				this.isNewWallet=true;
 				this.initWallet();
 			}
@@ -996,7 +1065,7 @@ export default
 				}
 				else
 				{
-					this.active_wallet_name=this.wallet_name;
+					this.active_wallet_name=this.wallet_name+"_"+this.walletType+"_"+this.network;
 					this.initWallet();
 				}
 			}
@@ -1005,14 +1074,14 @@ export default
 		{
 			this.active_wallet_already_exist=false;
 			this.isImportActive=false;
-			this.changePage("create-wallet");
+			this.changePage("select-network");
 		},
 		importExistingWallet()
 		{
 			this.active_wallet_already_exist=false;
 			this.isImportActive=true;
 			this.changePage("create-wallet");
-		},		
+		},
 		unlockWallet: function ()
 		{
 			if (!this.active_wallet_name)
@@ -1022,7 +1091,7 @@ export default
 			}
 			this.busy=true;
 			this.initWallet();
-		},		
+		},
 		parseJSON: function(str)
 		{
 			try
@@ -1035,19 +1104,21 @@ export default
 				return false;
 			}
 		},
-		setActiveWallet(wallet_name)
+		setActiveWallet(wallet)
 		{
-			this.active_wallet_name=wallet_name;
+			this.active_wallet_name=wallet.name+"_"+wallet.type+"_"+wallet.network;
 			this.active_wallet_already_exist=true;
-		},		
+			console.log("Active wallet -> " + this.active_wallet_name);
+		},
 		removeSite(index)
 		{
 			this.trustedSites.splice(index,1);
-		    try
-		    {
-		    	chrome.storage.local.set({trustedSites: this.trustedSites}, function () {});			
+			try
+			{
+				chrome.storage.local.set({trustedSites: this.trustedSites}, function () {});
 			}
-			catch(e) {}
+			catch(e)
+			{}
 		},
 		changePage:function(page)
 		{
@@ -1066,7 +1137,7 @@ export default
 				{
 					chrome.storage.local.get({trustedSites: []}, function (result)
 					{
-					    vm.trustedSites=result.trustedSites;
+						vm.trustedSites=result.trustedSites;
 					});
 				}
 				catch (e){}
@@ -1074,9 +1145,9 @@ export default
 			else if (this.page=="backup-wallet")
 			{
 				vm.mnemonics=undefined;
-			    UIkit.modal.prompt('Wallet Password:', '').then(function (password)
-			    {
-			    	if (!password) return; 
+				UIkit.modal.prompt('Wallet Password:', '').then(function (password)
+				{
+					if (!password) return; 
 					wallet.db.GetMasterKey("mnemonic",password)
 					.then(function (e)
 					{
@@ -1089,7 +1160,7 @@ export default
 							UIkit.modal.alert("Wrong password");
 						}
 					});
-           		});
+				});
 			}
 		},
 		goBack:function()
@@ -1192,7 +1263,7 @@ export default
 		  		chrome.runtime.sendMessage({cmd:"reject_connection"}, function(response)
 		  		{
 					console.log(response);
-		    		//window.close();      
+		    		//window.close();
 		  		});
 		  	}
 		  	catch (e){}
@@ -1288,7 +1359,7 @@ export default
 		  		chrome.runtime.sendMessage({cmd:"reject_cancel_nft_order"}, function(response)
 		  		{
 					console.log(response);
-		    		//window.close();      
+		    		//window.close();
 		  		});
 		  	}
 		  	catch (e){}
@@ -1338,7 +1409,7 @@ export default
 							{
 								console.log(response);
 						 	});
-							UIkit.modal.alert(e.message);	
+							UIkit.modal.alert(e.message);
 						});
 					}
 					, function ()
@@ -1361,7 +1432,7 @@ export default
 				{
 					console.log(response);
 			 	});
-			});		  
+			});
 		},
 		rejectCreateNFTCollection()
 		{
@@ -1370,7 +1441,7 @@ export default
 		  		chrome.runtime.sendMessage({cmd:"reject_create_nft_collection"}, function(response)
 		  		{
 					console.log(response);
-		    		//window.close();      
+		    		//window.close();
 		  		});
 		  	}
 		  	catch (e){}
@@ -1396,7 +1467,7 @@ export default
 							console.log(result);
 							if (result.error)
 							{
-								UIkit.modal.alert(result.error);	
+								UIkit.modal.alert(result.error);
 								chrome.runtime.sendMessage({cmd:"reject_create_nft"}, function(response)
 								{
 									console.log(response);
@@ -1421,7 +1492,7 @@ export default
 							{
 								console.log(response);
 						 	});
-							UIkit.modal.alert(e.message);	
+							UIkit.modal.alert(e.message);
 						});
 					}
 					, function ()
@@ -1443,8 +1514,8 @@ export default
 				chrome.runtime.sendMessage({cmd:"reject_create_nft"}, function(response)
 				{
 					console.log(response);
-			 	});
-			});		  
+				});
+			});
 		},
 		rejectCreateNFT()
 		{
@@ -1453,7 +1524,7 @@ export default
 		  		chrome.runtime.sendMessage({cmd:"reject_create_nft"}, function(response)
 		  		{
 					console.log(response);
-		    		//window.close();      
+		    		//window.close();
 		  		});
 		  	}
 		  	catch (e){}
@@ -1465,7 +1536,7 @@ export default
 		  		chrome.runtime.sendMessage({cmd:"reject_create_nft_sell_order"}, function(response)
 		  		{
 					console.log(response);
-		    		//window.close();      
+		    		//window.close();
 		  		});
 		  	}
 		  	catch (e){}
@@ -1642,10 +1713,8 @@ export default
 		      const walletFile = vm.active_wallet_name; // File name of the wallet database, persistence using dexie db backend only works on the browser
 		      const password = vm.password; // Password used to encrypt and open the wallet database
 		      const spendingPassword = vm.password; // Password used to send transactions
-		      const type = "next"; // Wallet type next, navcoin-core or navcoin-js-v1
 		      const zapwallettxes = false; // Should the wallet be cleared of its history?
 		      const log = true; // Log to console
-		      const network = "testnet";
 	          njs.wallet.Init().then(async () => {
 	    	  if (vm.active_wallet_already_exist)
 			  {
@@ -1653,7 +1722,6 @@ export default
 				wallet=new njs.wallet.WalletFile(
 				{
 					file:vm.active_wallet_name,
-					network:network,
 					zapwallettxes:zapwallettxes,
 					password:password,
 					log:log
@@ -1661,14 +1729,14 @@ export default
 			  }
 			  else
 			  {
-				console.log("Creating and loading new wallet : " + vm.active_wallet_name + "("+network+")");
+				console.log("Creating and loading new wallet : " + vm.active_wallet_name + "("+vm.walletType+")" + "("+vm.network+")");
 				console.log("Password : " + password);
 				wallet=new njs.wallet.WalletFile(
 				{
 					file:vm.active_wallet_name,
-					network:network,
+					network:vm.network,
 					mnemonic:(vm.mnemonics?vm.mnemonics:undefined),
-					type: type,
+					type: vm.walletType,
 					password:password,
 					spendingPassword:spendingPassword,
 					zapwallettxes:zapwallettxes,
@@ -1764,12 +1832,12 @@ export default
 				.catch(function(e)
 	          	{
 	          		console.log("Error while getting tokens -> " + e.message);
-				});	            
+				});
 				wallet.GetHistory().then((value) =>
 				{
 					vm.history=value;
 					console.log(vm.history);
-				});	            
+				});
 	            console.log("sync_finished");
 	            console.log(`Balance ${JSON.stringify(await wallet.GetBalance())}`);
 	          });

@@ -21,7 +21,7 @@
   "128": "images/icons/favicon-128x128.png"
   },  
  "externally_connectable": {
-  "matches": ["http://*.priverse.org/*","http://localhost/*"],
+  "matches": ["https://*.priverse.org/*","http://localhost/*"],
   "ids": ["*"]
   },
  "host_permissions": [

@@ -262,7 +262,7 @@
 			<div class="uk-margin" style="margin-top:15px;">
 				<h5>Please choose a wallet</h5>
 			</div>
-			<div v-for="(wallet, $index) in wallets" :class="{ 'uk-background-secondary uk-light': wallet.name+'_'+wallet.type+'_'+wallet.network==active_wallet_name, 'uk-background-muted': wallet.name+'_'+wallet.type+'_'+wallet.network!=active_wallet_name }" class="uk-card uk-border-rounded" style="padding:5px;cursor: pointer;" @click="setActiveWallet(wallet)">
+			<div v-for="(wallet, index) in wallets" :class="{ 'uk-background-secondary uk-light': wallet.name+'_'+wallet.type+'_'+wallet.network==active_wallet_name, 'uk-background-muted': wallet.name+'_'+wallet.type+'_'+wallet.network!=active_wallet_name }" class="uk-card uk-border-rounded" style="padding:5px;cursor: pointer;" @click="setActiveWallet(wallet)">
 				<article class="uk-comment">
 					<header class="uk-comment-header">
 						<div class="uk-grid-medium uk-flex-middle" uk-grid>

@@ -5,27 +5,27 @@
 				<button style="margin-left:5px;" class="uk-button uk-button-small uk-button-default" type="button" v-if="page!='home'" v-on:click="changePage('home')"><i class="fa-solid fa-home"></i>&nbsp;</button>
 				<button style="margin-left:5px;" class="uk-button uk-button-small uk-button-default" type="button"><i class="fa-solid fa-ellipsis-vertical"></i>&nbsp;</button>
 				<div uk-dropdown='mode:click' id="menu">
-				    <div class="uk-dropdown-grid uk-child-width-1-2@m" uk-grid>
-				        <div>
-				            <ul class="uk-nav uk-dropdown-nav">
-				                <li class="uk-nav-header">dApps</li>
-				                <li><a href='#' v-on:click="changePage('trusted_sites')">Trusted Sites</a></li>
-				            </ul>
-				        </div>
-				        <div>
-				            <ul class="uk-nav uk-dropdown-nav">
-				                <li class="uk-nav-header">Message</li>
-				                <li><a href="#" v-on:click="changePage('sign-message')">Sign message</a></li>
-				                <li><a href="#" v-on:click="changePage('verify-message')">Verify message</a></li>
-				                <li class="uk-nav-header">Wallet</li>
-				                <li><a href="#" v-on:click="changePage('backup-wallet')">Backup Wallet</a></li>
-				                <li><a href='#' v-on:click="changePage('remove-wallet')">Remove Wallet</a></li>
-				                <li class="uk-nav-divider"></li>
-				                <li><a href='#' v-on:click="changePage('about')">About</a></li>
-				            </ul>
-				        </div>
-				    </div>
-			    </div>
+					<div class="uk-dropdown-grid uk-child-width-1-2@m" uk-grid>
+						<div>
+							<ul class="uk-nav uk-dropdown-nav">
+								<li class="uk-nav-header">dApps</li>
+								<li><a href='#' v-on:click="changePage('trusted_sites')">Trusted Sites</a></li>
+							</ul>
+						</div>
+						<div>
+							<ul class="uk-nav uk-dropdown-nav">
+								<li class="uk-nav-header">Message</li>
+								<li><a href="#" v-on:click="changePage('sign-message')">Sign message</a></li>
+								<li><a href="#" v-on:click="changePage('verify-message')">Verify message</a></li>
+								<li class="uk-nav-header">Wallet</li>
+								<li><a href="#" v-on:click="changePage('backup-wallet')">Backup Wallet</a></li>
+								<li><a href='#' v-on:click="changePage('remove-wallet')">Remove Wallet</a></li>
+								<li class="uk-nav-divider"></li>
+								<li><a href='#' v-on:click="changePage('about')">About</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
 			</div>
 			<div class="uk-align-right">
 				<div v-show="progress!=100">
@@ -35,7 +35,6 @@
 				<span v-if="height"><small><i class="fa-solid fa-hammer"></i>&nbsp;{{height}}</small></span>
 			</div>
 		</div>
-
 		<div class="uk-container" v-if="page=='verify-mnemonics'" style="margin-top:15px;">
 			<h4>Backup Your Wallet</h4>
 			<p>Below are the seed phrases created for your wallet. If you do not back up these seed phrases, you cannot import them back into your wallet in future. Please backup your seed phrases in a safe place.</p>
@@ -50,7 +49,6 @@
 				<button class="uk-button uk-button-default" v-on:click="changePage('verify-seed-phrases')"><i class="fa-solid fa-arrow-right"></i>&nbsp;Verify seed phrases</button>
 			</div>
 		</div>
-
 		<div class="uk-container" v-if="page=='verify-seed-phrases'" style="margin-top:15px;">
 			<h4>Verify Seed Phrases</h4>
 			<p>Please select the seed phrases you have backed up in order.</p>
@@ -116,7 +114,7 @@
 		<div class="uk-container" v-if="page=='about'" style="margin-top:15px;">
 			<center>
 				<img style="width:50%;height:auto" src="images/nav-logo-border.png">
-		        <div class="uk-margin">
+				<div class="uk-margin">
 					<p>Navcoin Wallet for Chrome</p>
 					<p>Build 1.0.10</p>
 					<p>Developed by Navcoin Developers</p>
@@ -125,8 +123,8 @@
 				<div class="uk-margin">
 					<p>navcoin-js v{{njs.version}}</p>
 					<p>bitcore-lib {{njs.wallet.bitcore.version}}</p>
-		        </div>
-		    </center>
+				</div>
+			</center>
 		</div>
 		<div class="uk-container" v-if="page=='welcome'" style="margin-top:15px;">
 			<center>
@@ -134,66 +132,66 @@
 				<h1>Welcome</h1>
 				<p>Welcome to the Navcoin wallet!</p>
 				<p>With Navcoin wallet you can send NAV, xNAV, view your NFTs and interact with websites.</p>
-		        <div class="uk-margin">
-		        	<button class="uk-button uk-button-primary" v-on:click="changePage('license-agreement')"><i class="fa-solid fa-right-long"></i>&nbsp;Get Started</button>
-		        </div>
-		    </center>
+				<div class="uk-margin">
+					<button class="uk-button uk-button-primary" v-on:click="changePage('license-agreement')"><i class="fa-solid fa-right-long"></i>&nbsp;Get Started</button>
+				</div>
+			</center>
 		</div>
 		<div class="uk-container" v-if="page=='license-agreement'" style="margin-top:15px;">
 			<h1>License Agreement</h1>
 			<p>
-			    This is a binding Agreement between Navcoin Developers (“Navcoin” or “We”) and the person, persons, or entity (“You” or “Your”) using the service, Software, or application (“Software”).
+				This is a binding Agreement between Navcoin Developers (“Navcoin” or “We”) and the person, persons, or entity (“You” or “Your”) using the service, Software, or application (“Software”).
 			  </p>
 			  <p class="terms__heading">
-			    RIGHTS AND OBLIGATIONS
+				RIGHTS AND OBLIGATIONS
 			  </p>
 			  <p>
-			    Navcoin provides the Software solely on the terms and conditions set forth in this Agreement and on the condition that You accept and comply with them. By using the Software You (a) accept this Agreement and agree that You are legally bound by its terms; and (b) represent and warrant that: (i) You are of legal age to enter into a binding agreement; and (ii) if You are a corporation, governmental organization or other legal entity, You have the right, power and authority to enter into this Agreement on behalf of the corporation, governmental organization or other legal entity and bind them to these terms.
+				Navcoin provides the Software solely on the terms and conditions set forth in this Agreement and on the condition that You accept and comply with them. By using the Software You (a) accept this Agreement and agree that You are legally bound by its terms; and (b) represent and warrant that: (i) You are of legal age to enter into a binding agreement; and (ii) if You are a corporation, governmental organization or other legal entity, You have the right, power and authority to enter into this Agreement on behalf of the corporation, governmental organization or other legal entity and bind them to these terms.
 			  </p>
 			  <p>
-			    This Software functions as a free, open source, and multi-signature digital wallet. The Software does not constitute an account where We or other third parties serve as financial intermediaries or custodians of Your Navcoin(s).
+				This Software functions as a free, open source, and multi-signature digital wallet. The Software does not constitute an account where We or other third parties serve as financial intermediaries or custodians of Your Navcoin(s).
 			  </p>
 			  <p>
-			    While the Software has undergone beta testing and continues to be improved by feedback from the open-source user and developer community, We cannot guarantee there will not be bugs in the Software. You acknowledge that Your use of this Software is at Your own discretion and in compliance with all applicable laws. You are responsible for safekeeping Your passwords, private key pairs, PINs, and any other codes You use to access the Software.
+				While the Software has undergone beta testing and continues to be improved by feedback from the open-source user and developer community, We cannot guarantee there will not be bugs in the Software. You acknowledge that Your use of this Software is at Your own discretion and in compliance with all applicable laws. You are responsible for safekeeping Your passwords, private key pairs, PINs, and any other codes You use to access the Software.
 			  </p>
 			  <p>
-			    IF YOU LOSE ACCESS TO YOUR NAV COIN WALLET OR YOUR ENCRYPTED PRIVATE KEYS AND YOU HAVE NOT SEPARATELY STORED A BACKUP OF YOUR WALLET AND CORRESPONDING PASSWORD, YOU ACKNOWLEDGE AND AGREE THAT ANY NAV COIN YOU HAVE ASSOCIATED WITH THAT WALLET WILL BECOME INACCESSIBLE. All transaction requests are irreversible. The authors of the Software, employees and affiliates of NAV COIN, copyright holders, and NAV COIN cannot retrieve Your private keys or passwords if You lose or forget them and cannot guarantee transaction confirmation as they do not have control over the Navcoin network.
+				IF YOU LOSE ACCESS TO YOUR NAV COIN WALLET OR YOUR ENCRYPTED PRIVATE KEYS AND YOU HAVE NOT SEPARATELY STORED A BACKUP OF YOUR WALLET AND CORRESPONDING PASSWORD, YOU ACKNOWLEDGE AND AGREE THAT ANY NAV COIN YOU HAVE ASSOCIATED WITH THAT WALLET WILL BECOME INACCESSIBLE. All transaction requests are irreversible. The authors of the Software, employees and affiliates of NAV COIN, copyright holders, and NAV COIN cannot retrieve Your private keys or passwords if You lose or forget them and cannot guarantee transaction confirmation as they do not have control over the Navcoin network.
 			  </p>
 			  <p class="terms__heading">
-			    DISCLAIMER
+				DISCLAIMER
 			  </p>
 			  <p>
-			    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OF THE SOFTWARE, EMPLOYEES AND AFFILIATES OF NAV COIN, COPYRIGHT HOLDERS, OR NAV COIN BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+				THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OF THE SOFTWARE, EMPLOYEES AND AFFILIATES OF NAV COIN, COPYRIGHT HOLDERS, OR NAV COIN BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			  </p>
 			  <p>
-			    IN NO EVENT WILL NAV COIN OR ITS AFFILIATES, OR ANY OF ITS OR THEIR RESPECTIVE SERVICE PROVIDERS, BE LIABLE TO YOU OR ANY THIRD PARTY FOR ANY USE, INTERRUPTION, DELAY OR INABILITY TO USE THE SOFTWARE, LOST REVENUES OR PROFITS, DELAYS, INTERRUPTION OR LOSS OF SERVICES, BUSINESS OR GOODWILL, LOSS OR CORRUPTION OF DATA, LOSS RESULTING FROM SYSTEM OR SYSTEM SERVICE FAILURE, MALFUNCTION OR SHUTDOWN, FAILURE TO ACCURATELY TRANSFER, READ OR TRANSMIT INFORMATION, FAILURE TO UPDATE OR PROVIDE CORRECT INFORMATION, SYSTEM INCOMPATIBILITY OR PROVISION OF INCORRECT COMPATIBILITY INFORMATION OR BREACHES IN SYSTEM SECURITY, OR FOR ANY CONSEQUENTIAL, INCIDENTAL, INDIRECT, EXEMPLARY, SPECIAL OR PUNITIVE DAMAGES, WHETHER ARISING OUT OF OR IN CONNECTION WITH THIS AGREEMENT, BREACH OF CONTRACT, TORT (INCLUDING NEGLIGENCE) OR OTHERWISE, REGARDLESS OF WHETHER SUCH DAMAGES WERE FORESEEABLE AND WHETHER OR NOT WE WERE ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+				IN NO EVENT WILL NAV COIN OR ITS AFFILIATES, OR ANY OF ITS OR THEIR RESPECTIVE SERVICE PROVIDERS, BE LIABLE TO YOU OR ANY THIRD PARTY FOR ANY USE, INTERRUPTION, DELAY OR INABILITY TO USE THE SOFTWARE, LOST REVENUES OR PROFITS, DELAYS, INTERRUPTION OR LOSS OF SERVICES, BUSINESS OR GOODWILL, LOSS OR CORRUPTION OF DATA, LOSS RESULTING FROM SYSTEM OR SYSTEM SERVICE FAILURE, MALFUNCTION OR SHUTDOWN, FAILURE TO ACCURATELY TRANSFER, READ OR TRANSMIT INFORMATION, FAILURE TO UPDATE OR PROVIDE CORRECT INFORMATION, SYSTEM INCOMPATIBILITY OR PROVISION OF INCORRECT COMPATIBILITY INFORMATION OR BREACHES IN SYSTEM SECURITY, OR FOR ANY CONSEQUENTIAL, INCIDENTAL, INDIRECT, EXEMPLARY, SPECIAL OR PUNITIVE DAMAGES, WHETHER ARISING OUT OF OR IN CONNECTION WITH THIS AGREEMENT, BREACH OF CONTRACT, TORT (INCLUDING NEGLIGENCE) OR OTHERWISE, REGARDLESS OF WHETHER SUCH DAMAGES WERE FORESEEABLE AND WHETHER OR NOT WE WERE ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 			  </p>
 			  <p class="terms__heading">
-			    INTELLECTUAL PROPERTY
+				INTELLECTUAL PROPERTY
 			  </p>
 			  <p>
-			    We retain all right, title, and interest in and to the Content and all of Navcoin’s brands, logos, and trademarks, including, but not limited to, Navcoin, NEXT, NEXT Wallet, NEXT Mobile Wallet, and variations of the wording of the aforementioned brands, logos, and trademarks.
+				We retain all right, title, and interest in and to the Content and all of Navcoin’s brands, logos, and trademarks, including, but not limited to, Navcoin, NEXT, NEXT Wallet, NEXT Mobile Wallet, and variations of the wording of the aforementioned brands, logos, and trademarks.
 			  </p>
 			  <p class="terms__heading">
-			    CHOICE OF LAW
+				CHOICE OF LAW
 			  </p>
 			  <p>
-			    This Agreement, and its application and interpretation, shall be governed exclusively by the laws of the State of Georgia, without regard to its conflict of law rules. You consent to the exclusive jurisdiction of the federal and state courts located in or near Atlanta, Georgia for any dispute arising under this Agreement.
+				This Agreement, and its application and interpretation, shall be governed exclusively by the laws of the State of Georgia, without regard to its conflict of law rules. You consent to the exclusive jurisdiction of the federal and state courts located in or near Atlanta, Georgia for any dispute arising under this Agreement.
 			  </p>
 			  <p class="terms__heading">
-			    SEVERABILITY
+				SEVERABILITY
 			  </p>
 			  <p>
-			    In the event any court shall declare any section or sections of this Agreement invalid or void, such declaration shall not invalidate the entire Agreement and all other paragraphs of the Agreement shall remain in full force and effect.
+				In the event any court shall declare any section or sections of this Agreement invalid or void, such declaration shall not invalidate the entire Agreement and all other paragraphs of the Agreement shall remain in full force and effect.
 			  </p>
 			  <p class="terms__heading">
-			    BINDING AGREEMENT
+				BINDING AGREEMENT
 			  </p>
 			  <p>
-			    The terms and provisions of this Agreement are binding upon Your heirs, successors, assigns, and other representatives. This Agreement may be executed in counterparts, each of which shall be considered to be an original, but both of which constitute the same Agreement.
+				The terms and provisions of this Agreement are binding upon Your heirs, successors, assigns, and other representatives. This Agreement may be executed in counterparts, each of which shall be considered to be an original, but both of which constitute the same Agreement.
 			  </p>
 			  <p>
-			    You assume any and all risks associated with the use of the Software. We reserve the right to modify this Agreement from time to time.
+				You assume any and all risks associated with the use of the Software. We reserve the right to modify this Agreement from time to time.
 			  </p>
 			<div class="uk-margin">
 				<button class="uk-button uk-button-primary uk-width-1-1" v-on:click="changePage('select-network')"><i class="fa-solid fa-right-long"></i>&nbsp;I accept the license agreement</button>
@@ -212,49 +210,49 @@
 		</div>
 		<div class="uk-container" v-if="page=='create-wallet'" style="margin-top:15px;">
 			<ul class="uk-subnav uk-subnav-pill" style="width:100%" :active="(isImportActive?1:0)" uk-switcher="animation: uk-animation-slide-left-medium, uk-animation-slide-right-medium">
-			    <li><a href="#">Create New Wallet</a></li>
-			    <li><a href="#">Import Wallet</a></li>
+				<li><a href="#">Create New Wallet</a></li>
+				<li><a href="#">Import Wallet</a></li>
 			</ul>
 			<ul class="uk-switcher uk-margin" :active="(isImportActive?1:0)" uk-switcher="animation: uk-animation-slide-left-medium, uk-animation-slide-right-medium">
-			    <li>
-				    <form>
-					    <fieldset class="uk-fieldset">
-					        <legend class="uk-legend">Create New Wallet</legend>
-					        <div class="uk-margin">
-					            <input class="uk-input" type="text" placeholder="Wallet name" v-model="wallet_name">
-					        </div>
-					        <div class="uk-margin">
-					            <input class="uk-input" type="password" placeholder="Password" v-model="password">
-					        </div>
-					        <div class="uk-margin">
-					            <input class="uk-input" type="password" placeholder="Password (again)" v-model="password_again">
-					        </div>
-					        <div class="uk-margin">
-					        	<button v-show="!busy" class="uk-button uk-button-primary uk-width-1-1" v-on:click="createWallet()"><i class="fa-solid fa-asterisk"></i>&nbsp;Create Wallet</button>
-					        </div>
-					    </fieldset>
+				<li>
+					<form>
+						<fieldset class="uk-fieldset">
+							<legend class="uk-legend">Create New Wallet</legend>
+							<div class="uk-margin">
+								<input class="uk-input" type="text" placeholder="Wallet name" v-model="wallet_name">
+							</div>
+							<div class="uk-margin">
+								<input class="uk-input" type="password" placeholder="Password" v-model="password">
+							</div>
+							<div class="uk-margin">
+								<input class="uk-input" type="password" placeholder="Password (again)" v-model="password_again">
+							</div>
+							<div class="uk-margin">
+								<button v-show="!busy" class="uk-button uk-button-primary uk-width-1-1" v-on:click="createWallet()"><i class="fa-solid fa-asterisk"></i>&nbsp;Create Wallet</button>
+							</div>
+						</fieldset>
 					</form>
 				</li>
-			    <li>
-				    <form>
-					    <fieldset class="uk-fieldset">
-					        <legend class="uk-legend">Import Wallet</legend>
-					        <div class="uk-margin">
-					            <input class="uk-input" type="text" placeholder="Wallet name" v-model="wallet_name">
-					        </div>
-					        <div class="uk-margin">
-					            <input class="uk-input" type="text" placeholder="Mnemonic words" v-model="mnemonics">
-					        </div>
-					        <div class="uk-margin">
-					            <input class="uk-input" type="password" placeholder="Password" v-model="password">
-					        </div>
-					        <div class="uk-margin">
-					            <input class="uk-input" type="password" placeholder="Password (again)" v-model="password_again">
-					        </div>
-					        <div class="uk-margin">
-					        	<button v-show="!busy" class="uk-button uk-button-primary uk-width-1-1" v-on:click="importWallet()"><i class="fa-solid fa-file-import"></i>&nbsp;Import Wallet</button>
-					        </div>
-					    </fieldset>
+				<li>
+					<form>
+						<fieldset class="uk-fieldset">
+							<legend class="uk-legend">Import Wallet</legend>
+							<div class="uk-margin">
+								<input class="uk-input" type="text" placeholder="Wallet name" v-model="wallet_name">
+							</div>
+							<div class="uk-margin">
+								<input class="uk-input" type="text" placeholder="Mnemonic words" v-model="mnemonics">
+							</div>
+							<div class="uk-margin">
+								<input class="uk-input" type="password" placeholder="Password" v-model="password">
+							</div>
+							<div class="uk-margin">
+								<input class="uk-input" type="password" placeholder="Password (again)" v-model="password_again">
+							</div>
+							<div class="uk-margin">
+								<button v-show="!busy" class="uk-button uk-button-primary uk-width-1-1" v-on:click="importWallet()"><i class="fa-solid fa-file-import"></i>&nbsp;Import Wallet</button>
+							</div>
+						</fieldset>
 					</form>
 				</li>
 			</ul>
@@ -266,22 +264,22 @@
 			</div>
 			<div v-for="(wallet, $index) in wallets" :class="{ 'uk-background-secondary uk-light': wallet.name+'_'+wallet.type+'_'+wallet.network==active_wallet_name, 'uk-background-muted': wallet.name+'_'+wallet.type+'_'+wallet.network!=active_wallet_name }" class="uk-card uk-border-rounded" style="padding:5px;cursor: pointer;" @click="setActiveWallet(wallet)">
 				<article class="uk-comment">
-				    <header class="uk-comment-header">
-				        <div class="uk-grid-medium uk-flex-middle" uk-grid>
-				            <div class="uk-width-auto" style="width:64px;">
-				            	<center>
+					<header class="uk-comment-header">
+						<div class="uk-grid-medium uk-flex-middle" uk-grid>
+							<div class="uk-width-auto" style="width:64px;">
+								<center>
 									<i v-if="wallet.name+'_'+wallet.type+'_'+wallet.network==active_wallet_name" class="fa-2x fa-solid fa-wallet uk-text-primary"></i>
 									<i v-else class="fa-2x fa-solid fa-wallet"></i>
 								</center>
 							</div>
-				            <div class="uk-width-expand">
-				                <div><a class="uk-link-reset" href="#">{{wallet.name}}</a></div>
-				                <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
-				                    <li>{{wallet.network}}</li>
-				                </ul>
-				            </div>
-				        </div>
-				    </header>
+							<div class="uk-width-expand">
+								<div><a class="uk-link-reset" href="#">{{wallet.name}}</a></div>
+								<ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+									<li>{{wallet.network}}</li>
+								</ul>
+							</div>
+						</div>
+					</header>
 				</article>
 			</div>
 			<fieldset class="uk-fieldset uk-margin-small">
@@ -301,65 +299,65 @@
 		</div>
 		<div class="uk-container">
 			<div v-if="page=='trusted_sites'" class="uk-card uk-card-default uk-card-body uk-width-1-2@m">
-			    <h3 class="uk-card-title">Trusted Sites</h3>
-			    <p>Below you can find a list of sites that you have previously granted access to your wallet and that have been marked as trusted.</p>
-			    <p>If there is a site that you do not want to access your wallet, you can delete it.</p>
-			    <ul class="uk-list uk-list-divider" v-if="trustedSites.length>0">
+				<h3 class="uk-card-title">Trusted Sites</h3>
+				<p>Below you can find a list of sites that you have previously granted access to your wallet and that have been marked as trusted.</p>
+				<p>If there is a site that you do not want to access your wallet, you can delete it.</p>
+				<ul class="uk-list uk-list-divider" v-if="trustedSites.length>0">
 					<li v-for="(site,index) in trustedSites">
-			    	<button class="uk-button uk-button-text" v-on:click="removeSite(index)"><i class="fas fa-trash"></i></button>&nbsp;{{site}}
-			    	</li>
-			    </ul>
-			    <p v-else>No site was found that has been granted access to your wallet.</p>
+					<button class="uk-button uk-button-text" v-on:click="removeSite(index)"><i class="fas fa-trash"></i></button>&nbsp;{{site}}
+					</li>
+				</ul>
+				<p v-else>No site was found that has been granted access to your wallet.</p>
 			</div>
 			<div id="modal-please-wait" uk-modal="esc-close:false;bg-close:false">
-			    <div class="uk-modal-dialog uk-modal-body">
-			        <h2 class="uk-modal-title">Processing</h2>
-			        <p>Please wait...</p>
-			        <p>{{process_message}}</p>
-			    </div>
-			</div>		
+				<div class="uk-modal-dialog uk-modal-body">
+					<h2 class="uk-modal-title">Processing</h2>
+					<p>Please wait...</p>
+					<p>{{process_message}}</p>
+				</div>
+			</div>
 			<div id="modal-connect-confirm" uk-modal v-if="action">
-			    <div class="uk-modal-dialog uk-modal-body">
-			        <h2 class="uk-modal-title">Connection Request</h2>
+				<div class="uk-modal-dialog uk-modal-body">
+					<h2 class="uk-modal-title">Connection Request</h2>
 					<p>The website "<b>{{sender.origin}}</b>" will have access to your private address and NFT collections.</p>
 					<p>Please only give access to sites you trust.</p>
-			        <p class="uk-text-right">
-			            <button class="uk-button uk-button-default uk-modal-close" type="button" v-on:click="rejectConnection()">Cancel</button>
-			            <button class="uk-button uk-button-primary uk-modal-close" type="button" v-on:click="acceptConnection()">Accept</button>
-			        </p>
-			    </div>
+					<p class="uk-text-right">
+						<button class="uk-button uk-button-default uk-modal-close" type="button" v-on:click="rejectConnection()">Cancel</button>
+						<button class="uk-button uk-button-primary uk-modal-close" type="button" v-on:click="acceptConnection()">Accept</button>
+					</p>
+				</div>
 			</div>
 			<div id="modal-cancel-nft-sell-order-confirm" uk-modal v-if="action">
-			    <div class="uk-modal-dialog uk-modal-body">
-			        <h3>Cancel NFT Sell Order</h3>
+				<div class="uk-modal-dialog uk-modal-body">
+					<h3>Cancel NFT Sell Order</h3>
 					<p>The website "<b>{{sender.origin}}</b>" requests to cancel an NFT sell order.</p>
 					<p class="uk-text-break">Collection ID : {{action.token_id}}</p>
 					<p>NFT ID : {{action.nft_id}}</p>
 					<p>Do you confirm to cancel NFT sell order?</p>
-			        <p class="uk-text-right">
-			            <button class="uk-button uk-button-default uk-modal-close" type="button" v-on:click="rejectCancelNFTSellOrder()">Reject</button>
-			            <button class="uk-button uk-button-primary uk-modal-close" type="button" v-on:click="acceptCancelNFTSellOrder()">Accept</button>
-			        </p>
-			    </div>
-			</div>			
+					<p class="uk-text-right">
+						<button class="uk-button uk-button-default uk-modal-close" type="button" v-on:click="rejectCancelNFTSellOrder()">Reject</button>
+						<button class="uk-button uk-button-primary uk-modal-close" type="button" v-on:click="acceptCancelNFTSellOrder()">Accept</button>
+					</p>
+				</div>
+			</div>
 			<div id="modal-create-nft-collection-confirm" uk-modal v-if="action">
-			    <div class="uk-modal-dialog uk-modal-body">
-			        <h3>Create NFT Collection</h3>
+				<div class="uk-modal-dialog uk-modal-body">
+					<h3>Create NFT Collection</h3>
 					<p>The website "<b>{{sender.origin}}</b>" requests to create an NFT collection on your wallet.</p>
 					Collection name : {{action.name}}<br/>
 					Maximum Supply : {{action.max_supply}}<br/>
 					Scheme :<br/>
 					<p class="uk-text-break">{{action.scheme}}</p>
 					<p>Do you confirm to create NFT collection?</p>
-			        <p class="uk-text-right">
-			            <button class="uk-button uk-button-default uk-modal-close" type="button" v-on:click="rejectCreateNFTCollection()">Reject</button>
-			            <button class="uk-button uk-button-primary uk-modal-close" type="button" v-on:click="acceptCreateNFTCollection()">Accept</button>
-			        </p>
-			    </div>
+					<p class="uk-text-right">
+						<button class="uk-button uk-button-default uk-modal-close" type="button" v-on:click="rejectCreateNFTCollection()">Reject</button>
+						<button class="uk-button uk-button-primary uk-modal-close" type="button" v-on:click="acceptCreateNFTCollection()">Accept</button>
+					</p>
+				</div>
 			</div>
 			<div id="modal-create-nft-confirm" uk-modal v-if="action">
-			    <div class="uk-modal-dialog uk-modal-body">
-			        <h3>Mint NFT</h3>
+				<div class="uk-modal-dialog uk-modal-body">
+					<h3>Mint NFT</h3>
 					<p>The website "<b>{{sender.origin}}</b>" requests to mint an NFT on your wallet.</p>
 					NFT Name : {{action.name}}<br/>
 					NFT ID : {{action.nft_id}}<br/>
@@ -375,19 +373,19 @@
 						</select>
 					</div>
 					<div class="uk-alert-warning" uk-alert v-if="isPrivateTokensSynced && privateTokens.length==0">
-    					<a class="uk-alert-close" uk-close></a>
+						<a class="uk-alert-close" uk-close></a>
 						<p><b>You don't have any NFT collection.</b></p>
 					</div>
 					<p v-if="isPrivateTokensSynced && privateTokens.length>0">Do you confirm to mint NFT?</p>
-			        <p class="uk-text-right">
-			            <button class="uk-button uk-button-default uk-modal-close" type="button" v-on:click="rejectCreateNFT()">Reject</button>
-			            <button :disabled="!mint_nft_token_id" class="uk-button uk-button-primary uk-modal-close" type="button" v-on:click="acceptCreateNFT()">Accept</button>
-			        </p>
-			    </div>
+					<p class="uk-text-right">
+						<button class="uk-button uk-button-default uk-modal-close" type="button" v-on:click="rejectCreateNFT()">Reject</button>
+						<button :disabled="!mint_nft_token_id" class="uk-button uk-button-primary uk-modal-close" type="button" v-on:click="acceptCreateNFT()">Accept</button>
+					</p>
+				</div>
 			</div>
 			<div id="modal-accept-nft-order-confirm" uk-modal v-if="action">
-			    <div class="uk-modal-dialog uk-modal-body">
-			        <h3>Purchase NFT</h3>
+				<div class="uk-modal-dialog uk-modal-body">
+					<h3>Purchase NFT</h3>
 					<div v-if="action.order">
 						<p>The website "<b>{{sender.origin}}</b>" requests to purchase an NFT from marketplace.</p>
 						<b>Collection ID</b> 
@@ -404,15 +402,15 @@
 						</div>
 					</div>
 					<p>Do you confirm to purchase NFT?</p>
-			        <p class="uk-text-right">
-			            <button class="uk-button uk-button-default uk-modal-close" type="button" v-on:click="rejectNFTOrder()">Reject</button>
-			            <button class="uk-button uk-button-primary uk-modal-close" type="button" v-on:click="acceptNFTOrder()">Accept</button>
-			        </p>
-			    </div>
+					<p class="uk-text-right">
+						<button class="uk-button uk-button-default uk-modal-close" type="button" v-on:click="rejectNFTOrder()">Reject</button>
+						<button class="uk-button uk-button-primary uk-modal-close" type="button" v-on:click="acceptNFTOrder()">Accept</button>
+					</p>
+				</div>
 			</div>
 			<div id="modal-create-nft-sell-order-confirm" uk-modal v-if="action">
-			    <div class="uk-modal-dialog uk-modal-body">
-			        <h3>Create NFT Sell Order</h3>
+				<div class="uk-modal-dialog uk-modal-body">
+					<h3>Create NFT Sell Order</h3>
 					<p>The website "<b>{{sender.origin}}</b>" requests to create an NFT sell order.</p>
 					<b>Token ID</b><br/>
 					<div style="word-break:break-word;">{{action.token_id}}</div>
@@ -439,73 +437,73 @@
 						</div>
 					</div>
 					<p>Do you confirm to create NFT sell order?</p>
-			        <p class="uk-text-right">
-			            <button class="uk-button uk-button-default uk-modal-close" type="button" v-on:click="rejectCreateNFTSellOrder()">Reject</button>
-			            <button class="uk-button uk-button-primary uk-modal-close" type="button" v-on:click="acceptCreateNFTSellOrder()">Accept</button>
-			        </p>
-			    </div>
-			</div>					
+					<p class="uk-text-right">
+						<button class="uk-button uk-button-default uk-modal-close" type="button" v-on:click="rejectCreateNFTSellOrder()">Reject</button>
+						<button class="uk-button uk-button-primary uk-modal-close" type="button" v-on:click="acceptCreateNFTSellOrder()">Accept</button>
+					</p>
+				</div>
+			</div>
 			<ul v-if="page=='home'" class="uk-subnav uk-subnav-pill" style="width:100%" uk-switcher="animation: uk-animation-slide-left-medium, uk-animation-slide-right-medium">
-			    <li><a href="#">Wallet</a></li>
-			    <li><a href="#">Receive</a></li>
-			    <li><a href="#">Send</a></li>
-			    <li><a href="#">NFTs</a></li>
+				<li><a href="#">Wallet</a></li>
+				<li><a href="#">Receive</a></li>
+				<li><a href="#">Send</a></li>
+				<li><a href="#">NFTs</a></li>
 			</ul>
 			<ul v-if="page=='home'" class="uk-switcher uk-margin" uk-switcher="animation: uk-animation-slide-left-medium, uk-animation-slide-right-medium">
-			    <li>
-				    <ul class="uk-list uk-grid-small">
-					    <li class="uk-padding-small uk-light card-public">
+				<li>
+					<ul class="uk-list uk-grid-small">
+						<li class="uk-padding-small uk-light card-public">
 							<div uk-grid>
-							    <div>
-							    	<img style="width:64px;height:auto;" src="images/nav-logo-border.png">
+								<div>
+									<img style="width:64px;height:auto;" src="images/nav-logo-border.png">
 								</div>
-					    		<div>
-					    			<p>Public</p>
-								    <p v-if="balance">NAV {{formatBalance(balance.nav.confirmed)}}</p>
-								    <p v-if="balance && balance.nav.pending">Pending : NAV {{formatBalance(balance.nav.pending)}}</p>
-								    <div v-if="!balance" uk-spinner style="width:14px;height:14px;"></div>
-					    		</div>
+								<div>
+									<p>Public</p>
+									<p v-if="balance">NAV {{formatBalance(balance.nav.confirmed)}}</p>
+									<p v-if="balance && balance.nav.pending">Pending : NAV {{formatBalance(balance.nav.pending)}}</p>
+									<div v-if="!balance" uk-spinner style="width:14px;height:14px;"></div>
+								</div>
 							</div>
 						</li>
-					    <li class="uk-padding-small uk-light card-private">
+						<li class="uk-padding-small uk-light card-private">
 							<div uk-grid>
-							    <div>
-							    	<img style="width:64px;height:auto;" src="images/xnav-logo-border.png">
+								<div>
+									<img style="width:64px;height:auto;" src="images/xnav-logo-border.png">
 								</div>
-					    		<div>
-					    			<p>Private</p>
-								    <p v-if="balance">xNAV {{formatBalance(balance.xnav.confirmed)}}</p>
-								    <p v-if="balance && balance.xnav.pending">Pending : xNAV {{formatBalance(balance.xnav.pending)}}</p>
-								    <div v-if="!balance" uk-spinner style="width:14px;height:14px;"></div>
-					    		</div>
-							</div>						
+								<div>
+									<p>Private</p>
+									<p v-if="balance">xNAV {{formatBalance(balance.xnav.confirmed)}}</p>
+									<p v-if="balance && balance.xnav.pending">Pending : xNAV {{formatBalance(balance.xnav.pending)}}</p>
+									<div v-if="!balance" uk-spinner style="width:14px;height:14px;"></div>
+								</div>
+							</div>
 						</li>
 					</ul>
 				</li>
-			    <li>
+				<li>
 					<ul class="uk-subnav uk-subnav-pill" uk-switcher="animation: uk-animation-slide-left-medium, uk-animation-slide-right-medium">
-					    <li><a href="#">Public</a></li>
-					    <li><a href="#">Private</a></li>
-					    <li><a href="#">History</a></li>
+						<li><a href="#">Public</a></li>
+						<li><a href="#">Private</a></li>
+						<li><a href="#">History</a></li>
 					</ul>
 					<ul class="uk-switcher uk-margin" uk-switcher="animation: uk-animation-slide-left-medium, uk-animation-slide-right-medium">
-					    <li>
+						<li>
 							<center>
-				            	<p>{{publicAddress}}</p>
-				            	<button class="uk-button uk-button-default" v-on:click="doCopy(publicAddress)"><i class="fa-solid fa-copy"></i>&nbsp;Copy</button>
+								<p>{{publicAddress}}</p>
+								<button class="uk-button uk-button-default" v-on:click="doCopy(publicAddress)"><i class="fa-solid fa-copy"></i>&nbsp;Copy</button>
 								<div v-html="qrcode_nav"></div>
 							</center>
-					    </li>
-					    <li>
+						</li>
+						<li>
 							<center>
-				            	<div class="address" style="word-break:break-word;">
-				            		<p>{{privateAddress}}</p>
-				            	</div>
-				            	<button class="uk-button uk-button-default" v-on:click="doCopy(privateAddress)"><i class="fa-solid fa-copy"></i>&nbsp;Copy</button>
+								<div class="address" style="word-break:break-word;">
+									<p>{{privateAddress}}</p>
+								</div>
+								<button class="uk-button uk-button-default" v-on:click="doCopy(privateAddress)"><i class="fa-solid fa-copy"></i>&nbsp;Copy</button>
 								<div v-html="qrcode_xnav"></div>
-							</center>							    
-					    </li>
-					    <li>
+							</center>
+						</li>
+						<li>
 							<div v-show="history.length>0">
 								<center>
 									<button class="uk-button uk-button-small uk-button-default" :disabled="currentPage==1" @click="prev"><i class="fa-solid fa-arrow-left"></i>&nbsp;</button>
@@ -514,18 +512,18 @@
 								</center>
 							</div>
 							<div class="uk-card uk-card-small  uk-card-default uk-width-1-2@m" v-for="(tx,i) in paginatedTxs" style="margin-top:15px;margin-bottom:15px;">
-							    <div class="uk-card-header">
-							        <div class="uk-grid-small uk-flex-middle" uk-grid>
-							            <div class="uk-width-auto">
-							                <img v-show="tx.type=='nav'" style="width:32px;height:auto;" src="images/nav-logo-no-border.png">
+								<div class="uk-card-header">
+									<div class="uk-grid-small uk-flex-middle" uk-grid>
+										<div class="uk-width-auto">
+											<img v-show="tx.type=='nav'" style="width:32px;height:auto;" src="images/nav-logo-no-border.png">
 											<img v-show="tx.type=='xnav'" style="width:32px;height:auto;" src="images/xnav-logo-no-border.png">
-							            </div>
-							            <div class="uk-width-expand">
-							            	<span class="notification">{{tx.type.toUpperCase()}}</span>
-							            </div>
-							        </div>
-							    </div>
-							    <div class="uk-card-body">
+										</div>
+										<div class="uk-width-expand">
+											<span class="notification">{{tx.type.toUpperCase()}}</span>
+										</div>
+									</div>
+								</div>
+								<div class="uk-card-body">
 									<i v-show="tx.type=='cold_staking'" style="margin-left: 5px;width:19px;height:auto;" class="fa-solid fa-asterisk"></i>
 									<i v-if="tx.amount>0" style="color:#669900" class="fa-solid fa-arrow-down"></i>
 									<i v-if="tx.amount<0" style="color:#cc6600" class="fa-solid fa-arrow-up"></i>
@@ -537,21 +535,20 @@
 										<span v-if="tx.type!='nft'">+{{formatBalance(tx.amount)}} {{tx.token_code}} {{(tx.token_name?"("+tx.token_name+")":"")}}</span>
 										<span v-else>{{tx.token_name}}</span>
 									</span>
-							    </div>
-							    <div class="uk-card-footer">
-						        	<span>{{(tx.confirmed?"Confirmed":"Not Confirmed")}}</span>
-						        	<span class="uk-align-right">{{formatDate(tx.timestamp)}}</span>
-							    </div>
+								</div>
+								<div class="uk-card-footer">
+									<span>{{(tx.confirmed?"Confirmed":"Not Confirmed")}}</span>
+									<span class="uk-align-right">{{formatDate(tx.timestamp)}}</span>
+								</div>
 							</div>
-				    
-					    </li>
-					 </ul>
+						</li>
+					</ul>
 				</li>
-			    <li>
-				    <form>
-					    <fieldset class="uk-fieldset">
+				<li>
+					<form>
+						<fieldset class="uk-fieldset">
 							<div class="uk-margin">
-							    <button class="uk-button uk-button-default uk-button-small" type="button" v-on:click="isPrivateTransaction=!isPrivateTransaction"><span v-show="isPrivateTransaction" class="fa-solid fa-eye-slash"></span><span v-show="!isPrivateTransaction" class="fa-solid fa-eye"></span>&nbsp;Private Transaction</button>
+								<button class="uk-button uk-button-default uk-button-small" type="button" v-on:click="isPrivateTransaction=!isPrivateTransaction"><span v-show="isPrivateTransaction" class="fa-solid fa-eye-slash"></span><span v-show="!isPrivateTransaction" class="fa-solid fa-eye"></span>&nbsp;Private Transaction</button>
 							</div>
 							<div class="uk-margin">
 								<button class="uk-button uk-button-default uk-button-small" type="button" v-on:click="isIncludesTxFee=!isIncludesTxFee"><span v-show="isIncludesTxFee" class="fa-solid fa-check"></span><span v-show="!isIncludesTxFee" class="fa-solid fa-circle-xmark"></span>&nbsp;Includes Transaction Fee</button>
@@ -568,15 +565,15 @@
 							</div>
 						</fieldset>
 					</form>
-			    </li>
-			    <li>
-			    	<div v-if="balance && Object.keys(balance.nfts).length>0">
+				</li>
+				<li>
+					<div v-if="balance && Object.keys(balance.nfts).length>0">
 						<h5>{{Object.keys(balance.nfts).length}} Collection</h5>
 						<div class="uk-card uk-card-default" v-for="(item,index) in balance.nfts" v-if="parseJSON(item.scheme).version==1">
-						    <div class="uk-card-header">
-    							<!--<h3 class="uk-card-title">
-    								{{item.name}}
-    							</h3>!-->
+							<div class="uk-card-header">
+								<!--<h3 class="uk-card-title">
+									{{item.name}}
+								</h3>!-->
 								<img v-if="parseJSON(item.scheme).image" style="width:100%;height:auto" :src="ipfs_to_url(parseJSON(item.scheme).image)">
 								<div>
 									{{parseJSON(item.scheme).name}}
@@ -590,20 +587,20 @@
 							</div>
 							<div class="uk-card-body">
 								<div>
-								<div v-for="(item2,index) in item.confirmed" class="uk-card uk-card-default uk-grid-collapse uk-child-width-1-1@s uk-margin" uk-grid>
-								        <div class="uk-cover-container">
+									<div v-for="(item2,index) in item.confirmed" class="uk-card uk-card-default uk-grid-collapse uk-child-width-1-1@s uk-margin" uk-grid>
+										<div class="uk-cover-container">
 											<img v-if="parseJSON(item2).attributes.content_type.split('/')[0]=='image'" onerror="this.style.display='none'" uk-cover :src="ipfs_to_url(parseJSON(item2).image)">
-									        <canvas v-if="parseJSON(item2).attributes.content_type.split('/')[0]=='image'" width="400" height="400"></canvas>
-									    </div>
-								        <div class="uk-card-body" style="margin-left:10px;">
-							            	<div class="uk-card-title">
-							            		<small>
+											<canvas v-if="parseJSON(item2).attributes.content_type.split('/')[0]=='image'" width="400" height="400"></canvas>
+										</div>
+											<div class="uk-card-body" style="margin-left:10px;">
+											<div class="uk-card-title">
+												<small>
 													<i v-if="parseJSON(item2).attributes.content_type.split('/')[0]=='audio'" class="fa-solid fa-music"></i>
 													<i v-if="parseJSON(item2).attributes.content_type.split('/')[0]=='video'" class="fa-solid fa-circle-play"></i>
-							            			&nbsp;{{parseJSON(item2).name}} (#{{index}})
-							            		</small>
-							            	</div>
-							            	<div>
+													&nbsp;{{parseJSON(item2).name}} (#{{index}})
+												</small>
+											</div>
+											<div>
 												<small>
 													{{parseJSON(item2).description}}
 												</small>
@@ -627,13 +624,13 @@
 													Your browser does not support the audio element.
 												</video>
 											</div>
-								        </div>
-								    </div>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-			    </li>
+				</li>
 			</ul>
 		</div>
 	</div>
@@ -652,8 +649,14 @@ export default
 		return {
 			networks:
 			[
-				{name:'Mainnet',code:'mainnet'},
-				{name:'Testnet',code:'testnet'}
+				{
+					name:'Mainnet',
+					code:'mainnet'
+				},
+				{
+					name:'Testnet',
+					code:'testnet'
+				}
 			],
 			walletType:'next',
 			network:'testnet',
@@ -670,14 +673,14 @@ export default
 			is_action_processed:false,
 			sender:{},
 			trustedSites:[],
-	        status:'',
+			status:'',
 			page:'welcome',
 			pages:[],
 			pageindex:0,
-	        publicAddress:'',
-	        privateAddress:'',
-	        balance:undefined,
-	        history:[],
+			publicAddress:'',
+			privateAddress:'',
+			balance:undefined,
+			history:[],
 			qrcode_nav:'',
 			qrcode_xnav:'',
 			prefix:"navcoin:",
@@ -733,7 +736,7 @@ export default
 		{
 			return this.history.slice(this.indexStart, this.indexEnd);
 		}
-	},	
+	},
 	created: function ()
 	{
 		let vm=this;
@@ -775,29 +778,29 @@ export default
 		let vm=this;
 		try
 		{
-		    chrome.runtime.sendMessage({cmd:"ready"}, function(response)
-		    {
-		    	vm.is_action_processed=false;
+			chrome.runtime.sendMessage({cmd:"ready"}, function(response)
+			{
+				vm.is_action_processed=false;
 				vm.action=response.message;
-		    	vm.sender=response.sender;
-		 	});
-
+				vm.sender=response.sender;
+			});
 			chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse)
 			{
 				console.log("new message");
 				console.log(sender);
 				console.log(msg.cmd);
 				console.log(msg.message);
-			    if (msg.cmd=="update_action")
-			    {
-			    	vm.is_action_processed=false;
-			    	vm.action=msg.message;
-			    	vm.sender=msg.sender;
+				if (msg.cmd=="update_action")
+				{
+					vm.is_action_processed=false;
+					vm.action=msg.message;
+					vm.sender=msg.sender;
 					vm.processAction();
-			    }
-		    });
-	 	}
-	 	catch (e){}
+				}
+			});
+		}
+		catch (e)
+		{}
 	},
 	updated: function()
 	{
@@ -858,11 +861,11 @@ export default
 			UIkit.modal.confirm("<h3>Warning!</h3><p>If you do not back up your seed phrases, you will lose access to your balance in this wallet in the future.</p><p>Do you still want to skip the backup process?</p>").then(function()
 			{
 				vm.walletUnlocked=true;
-	        	vm.page="home";
+				vm.page="home";
 			}
-			, function ()
+			,function ()
 			{
-				console.log('Rejected.')
+				console.log('Rejected.');
 			});
 		},
 		confirmVerifySeedPhrases: function ()
@@ -870,7 +873,7 @@ export default
 			if (this.mnemonics.toString()==this.wordArrayConfirm.join(" "))
 			{
 				this.walletUnlocked=true;
-	        	this.page="home";
+				this.page="home";
 			}
 			else
 			{
@@ -881,7 +884,7 @@ export default
 		addWordtoArray: function (word)
 		{
 			this.wordArrayConfirm.push(word);
-		},		
+		},
 		signMessage()
 		{
 			let vm=this;
@@ -923,7 +926,7 @@ export default
 			}
 			else
 			{
-					UIkit.notification("<i class='fas fa-close'></i>&nbsp;Invalid password", {status:'danger'})
+				UIkit.notification("<i class='fas fa-close'></i>&nbsp;Invalid password", {status:'danger'})
 			}
 		},
 		send()
@@ -940,7 +943,7 @@ export default
 						let msg="<p>Amount to send : " + sb.toBitcoin((vm.isIncludesTxFee?amount-tx.fee:amount)) + " xNAV</p><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Total amount : " + sb.toBitcoin((vm.isIncludesTxFee?amount:amount+tx.fee)) + " xNAV</p>"+"<p>Do you confirm transaction?</p>";
 						UIkit.modal.confirm(msg).then(function()
 						{
-					    	wallet.SendTransaction(tx.tx).then(function (result)
+							wallet.SendTransaction(tx.tx).then(function (result)
 							{
 								if (result.error)
 								{
@@ -960,7 +963,7 @@ export default
 						}
 						, function ()
 						{
-	    					console.log('Rejected.')
+							console.log('Rejected.');
 						});
 					})
 					.catch((e) =>
@@ -970,7 +973,7 @@ export default
 				}
 				catch(e)
 				{
-					UIkit.modal.alert(e.message);	
+					UIkit.modal.alert(e.message);
 				}
 			}
 			else
@@ -983,40 +986,40 @@ export default
 						let msg="<p>Amount to send : " + sb.toBitcoin((vm.isIncludesTxFee?amount-tx.fee:amount)) + " NAV</p><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " NAV</p><p>Total amount : " + sb.toBitcoin((vm.isIncludesTxFee?amount:amount+tx.fee)) + " NAV</p>"+"<p>Do you confirm transaction?</p>";
 						UIkit.modal.confirm(msg).then(function()
 						{
-					    	wallet.SendTransaction(tx.tx).then(function (result)
+							wallet.SendTransaction(tx.tx).then(function (result)
 							{
 								if (result.error)
 								{
-									UIkit.modal.alert(result.error);	
+									UIkit.modal.alert(result.error);
 								}
 								else
 								{
 									vm.address=null;
 									vm.amount=null;
-									UIkit.modal.alert("Success");	
+									UIkit.modal.alert("Success");
 								}
 							})
 							.catch((e) =>
 							{
-								UIkit.modal.alert(e.message);	
+								UIkit.modal.alert(e.message);
 							});
 						}
 						, function ()
 						{
-	    					console.log('Rejected.')
+							console.log('Rejected.');
 						});
 					})
 					.catch((e) =>
 					{
-						UIkit.modal.alert(e.message);	
+						UIkit.modal.alert(e.message);
 					});
 				}
 				catch(e)
 				{
-					UIkit.modal.alert(e.message);	
+					UIkit.modal.alert(e.message);
 				}
 			}
-		},	
+		},
 		createWallet: function ()
 		{
 			if (!this.password)
@@ -1058,7 +1061,7 @@ export default
 			}
 			else
 			{
-				var valid = Mnemonic.isValid(this.mnemonics);
+				var valid=Mnemonic.isValid(this.mnemonics);
 				if (!valid)
 				{
 					UIkit.modal.alert('Mnemonics word checking failed, please correct your mnemonics and try again...');
@@ -1188,42 +1191,43 @@ export default
 		formatDate: n =>
 		{
 			if (n) return moment.unix(n).format('DD.MM.YY HH:mm:ss'); else return "";
-		},		
+		},
 		acceptConnection()
 		{
-		  let vm=this;
-		  chrome.runtime.sendMessage({cmd:"accept_connection",address:this.privateAddress}, function(response)
-		  {
-			console.log(response);
-			chrome.storage.local.get({trustedSites: []}, function (result)
+			let vm=this;
+			chrome.runtime.sendMessage({cmd:"accept_connection",address:this.privateAddress}, function(response)
 			{
-			    var trustedSites = result.trustedSites;
-			    if (!trustedSites.includes(vm.sender.origin))
-			    {
-				    trustedSites.push(vm.sender.origin);
-				    chrome.storage.local.set({trustedSites: trustedSites}, function ()
-				    {
-				        chrome.storage.local.get('trustedSites', function (result)
-				        {
-				            console.log(result.trustedSites);
-				           	//window.close();      
-				        });
-				    });
-			    }
+				console.log(response);
+				chrome.storage.local.get({trustedSites: []}, function (result)
+				{
+					var trustedSites = result.trustedSites;
+					if (!trustedSites.includes(vm.sender.origin))
+					{
+						trustedSites.push(vm.sender.origin);
+						chrome.storage.local.set({trustedSites: trustedSites}, function ()
+						{
+							chrome.storage.local.get('trustedSites', function (result)
+							{
+								console.log(result.trustedSites);
+								//window.close();
+							});
+						});
+					}
+				});
 			});
-		  });
 		},
 		rejectNFTOrder()
 		{
 			try
 			{
-		  		chrome.runtime.sendMessage({cmd:"reject_nft_order"}, function(response)
-		  		{
+				chrome.runtime.sendMessage({cmd:"reject_nft_order"}, function(response)
+				{
 					console.log(response);
-		    		//window.close();      
-		  		});
-		  	}
-		  	catch (e){}
+					//window.close();
+				});
+			}
+			catch (e)
+			{}
 		},
 		acceptNFTOrder()
 		{
@@ -1260,13 +1264,14 @@ export default
 		{
 			try
 			{
-		  		chrome.runtime.sendMessage({cmd:"reject_connection"}, function(response)
-		  		{
+				chrome.runtime.sendMessage({cmd:"reject_connection"}, function(response)
+				{
 					console.log(response);
-		    		//window.close();
-		  		});
-		  	}
-		  	catch (e){}
+					//window.close();
+				});
+			}
+			catch (e)
+			{}
 		},
 		acceptCancelNFTSellOrder()
 		{
@@ -1286,7 +1291,7 @@ export default
 						UIkit.modal.confirm(msg).then(function()
 						{
 							UIkit.modal("#modal-please-wait").show();
-					    	wallet.SendTransaction(tx.tx).then(function (result)
+							wallet.SendTransaction(tx.tx).then(function (result)
 							{
 								console.log(result);
 								if (result.error)
@@ -1295,7 +1300,7 @@ export default
 									chrome.runtime.sendMessage({cmd:"reject_cancel_nft_order"}, function(response)
 									{
 										console.log(response);
-								 	});
+									});
 									UIkit.modal("#modal-please-wait").hide();
 								}
 								else
@@ -1305,7 +1310,7 @@ export default
 									chrome.runtime.sendMessage({cmd:"accept_cancel_nft_order"}, function(response)
 									{
 										console.log(response);
-								 	});
+									});
 								}
 							})
 							.catch((e) =>
@@ -1315,18 +1320,18 @@ export default
 								chrome.runtime.sendMessage({cmd:"reject_cancel_nft_order"}, function(response)
 								{
 									console.log(response);
-							 	});
-								UIkit.modal.alert(e.message);	
+								});
+								UIkit.modal.alert(e.message);
 							});
 						}
-						, function ()
+						,function ()
 						{
 							UIkit.modal("#modal-please-wait").hide();
-	    					console.log('Rejected.')
+							console.log('Rejected.');
 							chrome.runtime.sendMessage({cmd:"reject_cancel_nft_order"}, function(response)
 							{
 								console.log(response);
-						 	});
+							});
 						});
 					}
 				})
@@ -1344,26 +1349,28 @@ export default
 		{
 			try
 			{
-		  		chrome.runtime.sendMessage({cmd:"reject_cancel_nft_order"}, function(response)
-		  		{
+				chrome.runtime.sendMessage({cmd:"reject_cancel_nft_order"}, function(response)
+				{
 					console.log(response);
-		    		//window.close();      
-		  		});
-		  	}
-		  	catch (e){}
+					//window.close();
+				});
+			}
+			catch (e)
+			{}
 		},
 		rejectCreateNFTCollection()
 		{
 			try
 			{
-		  		chrome.runtime.sendMessage({cmd:"reject_cancel_nft_order"}, function(response)
-		  		{
+				chrome.runtime.sendMessage({cmd:"reject_cancel_nft_order"}, function(response)
+				{
 					console.log(response);
-		    		//window.close();
-		  		});
-		  	}
-		  	catch (e){}
-		},		
+					//window.close();
+				});
+			}
+			catch (e)
+			{}
+		},
 		acceptCreateNFTCollection()
 		{
 			console.log("Accepting create nft collection request...")
@@ -1379,7 +1386,7 @@ export default
 					UIkit.modal.confirm(msg).then(function()
 					{
 						UIkit.modal("#modal-please-wait").show();
-				    	wallet.SendTransaction(tx.tx).then(function (result)
+						wallet.SendTransaction(tx.tx).then(function (result)
 						{
 							console.log(result);
 							if (result.error)
@@ -1388,7 +1395,7 @@ export default
 								chrome.runtime.sendMessage({cmd:"reject_create_nft_collection"}, function(response)
 								{
 									console.log(response);
-							 	});
+								});
 								UIkit.modal("#modal-please-wait").hide();
 							}
 							else
@@ -1398,7 +1405,7 @@ export default
 								chrome.runtime.sendMessage({cmd:"accept_create_nft_collection"}, function(response)
 								{
 									console.log(response);
-							 	});
+								});
 							}
 						})
 						.catch((e) =>
@@ -1408,18 +1415,18 @@ export default
 							chrome.runtime.sendMessage({cmd:"reject_create_nft_collection"}, function(response)
 							{
 								console.log(response);
-						 	});
+							});
 							UIkit.modal.alert(e.message);
 						});
 					}
 					, function ()
 					{
 						UIkit.modal("#modal-please-wait").hide();
-    					console.log('Rejected.')
+						console.log('Rejected.')
 						chrome.runtime.sendMessage({cmd:"reject_create_nft_collection"}, function(response)
 						{
 							console.log(response);
-					 	});
+						});
 					});
 				}
 			})
@@ -1431,20 +1438,21 @@ export default
 				chrome.runtime.sendMessage({cmd:"reject_create_nft_collection"}, function(response)
 				{
 					console.log(response);
-			 	});
+				});
 			});
 		},
 		rejectCreateNFTCollection()
 		{
 			try
 			{
-		  		chrome.runtime.sendMessage({cmd:"reject_create_nft_collection"}, function(response)
-		  		{
+				chrome.runtime.sendMessage({cmd:"reject_create_nft_collection"}, function(response)
+				{
 					console.log(response);
-		    		//window.close();
-		  		});
-		  	}
-		  	catch (e){}
+					//window.close();
+				});
+			}
+			catch (e)
+			{}
 		},
 		acceptCreateNFT()
 		{
@@ -1462,7 +1470,7 @@ export default
 					UIkit.modal.confirm(msg).then(function()
 					{
 						UIkit.modal("#modal-please-wait").show();
-				    	wallet.SendTransaction(tx.tx).then(function (result)
+						wallet.SendTransaction(tx.tx).then(function (result)
 						{
 							console.log(result);
 							if (result.error)
@@ -1471,7 +1479,7 @@ export default
 								chrome.runtime.sendMessage({cmd:"reject_create_nft"}, function(response)
 								{
 									console.log(response);
-							 	});
+								});
 								UIkit.modal("#modal-please-wait").hide();
 							}
 							else
@@ -1481,7 +1489,7 @@ export default
 								chrome.runtime.sendMessage({cmd:"accept_create_nft"}, function(response)
 								{
 									console.log(response);
-							 	});
+								});
 							}
 						})
 						.catch((e) =>
@@ -1491,18 +1499,18 @@ export default
 							chrome.runtime.sendMessage({cmd:"reject_create_nft"}, function(response)
 							{
 								console.log(response);
-						 	});
+							});
 							UIkit.modal.alert(e.message);
 						});
 					}
 					, function ()
 					{
 						UIkit.modal("#modal-please-wait").hide();
-    					console.log('Rejected.')
+						console.log('Rejected.')
 						chrome.runtime.sendMessage({cmd:"reject_create_nft"}, function(response)
 						{
 							console.log(response);
-					 	});
+						});
 					});
 				}
 			})
@@ -1521,25 +1529,27 @@ export default
 		{
 			try
 			{
-		  		chrome.runtime.sendMessage({cmd:"reject_create_nft"}, function(response)
-		  		{
+				chrome.runtime.sendMessage({cmd:"reject_create_nft"}, function(response)
+				{
 					console.log(response);
-		    		//window.close();
-		  		});
-		  	}
-		  	catch (e){}
+					//window.close();
+				});
+			}
+			catch (e)
+			{}
 		},
 		rejectCreateNFTSellOrder()
 		{
 			try
 			{
-		  		chrome.runtime.sendMessage({cmd:"reject_create_nft_sell_order"}, function(response)
-		  		{
+				chrome.runtime.sendMessage({cmd:"reject_create_nft_sell_order"}, function(response)
+				{
 					console.log(response);
-		    		//window.close();
-		  		});
-		  	}
-		  	catch (e){}
+					//window.close();
+				});
+			}
+			catch (e)
+			{}
 		},
 		acceptCreateNFTSellOrder()
 		{
@@ -1589,19 +1599,19 @@ export default
 								console.log(retval.data);
 								if (retval.data.status=="order_created")
 								{
-				              		chrome.runtime.sendMessage({cmd:"accept_create_nft_sell_order",result:true}, function(response){});
+									chrome.runtime.sendMessage({cmd:"accept_create_nft_sell_order",result:true}, function(response){});
 									UIkit.modal.alert("<p>Order created</p>");
 								}
 								else
 								{
-				              		chrome.runtime.sendMessage({cmd:"accept_create_nft_sell_order",result:false}, function(response){});
+									chrome.runtime.sendMessage({cmd:"accept_create_nft_sell_order",result:false}, function(response){});
 									UIkit.modal.alert("<p>NFT sell order cannot created.</p><p>"+retval.data.message+"</p>");
 								}
 							}).
 							catch(function(e)
 							{
 								console.log(e);
-			              		chrome.runtime.sendMessage({cmd:"accept_create_nft_sell_order",result:false}, function(response){});
+								chrome.runtime.sendMessage({cmd:"accept_create_nft_sell_order",result:false}, function(response){});
 								UIkit.modal.alert("<p>NFT sell order cannot created.</p><p>"+e.message+"</p>");
 							})
 						}
@@ -1609,21 +1619,21 @@ export default
 					.catch((e) =>
 					{
 						console.log("CreateSellNftOrder failed -> " + e.message);
-			            chrome.runtime.sendMessage({cmd:"accept_create_nft_sell_order",result:false}, function(response){});
+						chrome.runtime.sendMessage({cmd:"accept_create_nft_sell_order",result:false}, function(response){});
 						UIkit.modal.alert("<p>NFT sell order cannot created.</p><p>"+e.message+"</p>");
 					});
 				}).
 				catch((e) =>
 				{
 					console.log("CreateSellNftOrder failed -> " + e.message);
-			        chrome.runtime.sendMessage({cmd:"accept_create_nft_sell_order",result:false}, function(response){});
+					chrome.runtime.sendMessage({cmd:"accept_create_nft_sell_order",result:false}, function(response){});
 					UIkit.modal.alert("<p>NFT sell order cannot created.</p><p>"+e.message+"</p>");
 				});
 			}
 			catch(e)
 			{
 				console.log("CreateSellNftOrder failed -> " + e.message);
-			    chrome.runtime.sendMessage({cmd:"accept_create_nft_sell_order",result:false}, function(response){});
+				chrome.runtime.sendMessage({cmd:"accept_create_nft_sell_order",result:false}, function(response){});
 				UIkit.modal.alert("<p>NFT sell order cannot created.</p><p>"+e.message+"</p>");
 			}
 		},
@@ -1634,8 +1644,8 @@ export default
 			vm.is_action_processed=true;
 			if (vm.action.method=='connect')
 			{
-  				chrome.storage.local.get({trustedSites: []}, function (result)
-  				{
+				chrome.storage.local.get({trustedSites: []}, function (result)
+				{
 					if (!result.trustedSites.includes(vm.sender.origin))
 					{
 						UIkit.modal("#modal-connect-confirm").show();
@@ -1647,77 +1657,76 @@ export default
 					}
 				});
 			}
-          	if (vm.action.method=='create_nft_collection')
-          	{
-          		console.log("creating nft collection...");
-          		console.log(vm.action.name);
-          		console.log(vm.action.scheme);
-          		console.log(vm.action.max_supply);
+			if (vm.action.method=='create_nft_collection')
+			{
+				console.log("creating nft collection...");
+				console.log(vm.action.name);
+				console.log(vm.action.scheme);
+				console.log(vm.action.max_supply);
 				UIkit.modal("#modal-create-nft-collection-confirm").show();
-          	}            
-          	else if (vm.action.method=='create_nft')
-          	{
-          		console.log("creating nft...");
-          		console.log(vm.action.name);
-          		console.log(vm.action.nft_id);
-          		console.log(vm.action.scheme);
+			}
+			else if (vm.action.method=='create_nft')
+			{
+				console.log("creating nft...");
+				console.log(vm.action.name);
+				console.log(vm.action.nft_id);
+				console.log(vm.action.scheme);
 				UIkit.modal("#modal-create-nft-confirm").show();
-          	}
-	        else if (vm.action.method=='list_nft_collections')
-        	{
-          		console.log("listing nft collections...");
-          		chrome.runtime.sendMessage({cmd:"list_nft_collections",collections:vm.balance.nfts}, function(response)
-  				{
-  				});
-        	}
-  			else if (vm.action.method=='create_nft_sell_order')
-        	{
-        		if (vm.isPrivateTokensSynced)
-        		{
-	          		console.log("creating nft sell order...");
-	          		console.log(vm.action.token_id);
-	          		console.log(vm.action.nft_id);
-	          		console.log(vm.action.price);
-	          		wallet.GetNftInfo(vm.action.token_id,vm.action.nft_id).then((nft) =>
-	          		{
-	          			vm.sell_nft_metadata=JSON.parse(nft.metadata);
-	              		UIkit.modal("#modal-create-nft-sell-order-confirm").show();
-	          		});
-          		}
-          		else
-          		{
-          			//UIkit.modal.alert("<p>Private tokens not loaded, please try again later</p>");
-          		}
-        	}                	
-  			else if (vm.action.method=='accept_order')
-        	{
-        		console.log("accept order confirm");
-          		console.log(vm.action.order);
-              	UIkit.modal("#modal-accept-nft-order-confirm").show();
-        	}
-  			else if (vm.action.method=='cancel_nft_sell_order')
-        	{
-        		console.log("cancel sell order");
-          		console.log(vm.action.token_id);
-          		console.log(vm.action.nft_id);
-              	UIkit.modal("#modal-cancel-nft-sell-order-confirm").show();
-        	}
-        	
+			}
+			else if (vm.action.method=='list_nft_collections')
+			{
+				console.log("listing nft collections...");
+				chrome.runtime.sendMessage({cmd:"list_nft_collections",collections:vm.balance.nfts}, function(response)
+				{
+				});
+			}
+			else if (vm.action.method=='create_nft_sell_order')
+			{
+				if (vm.isPrivateTokensSynced)
+				{
+					console.log("creating nft sell order...");
+					console.log(vm.action.token_id);
+					console.log(vm.action.nft_id);
+					console.log(vm.action.price);
+					wallet.GetNftInfo(vm.action.token_id,vm.action.nft_id).then((nft) =>
+					{
+						vm.sell_nft_metadata=JSON.parse(nft.metadata);
+						UIkit.modal("#modal-create-nft-sell-order-confirm").show();
+					});
+				}
+				else
+				{
+					//UIkit.modal.alert("<p>Private tokens not loaded, please try again later</p>");
+				}
+			}
+			else if (vm.action.method=='accept_order')
+			{
+				console.log("accept order confirm");
+				console.log(vm.action.order);
+				UIkit.modal("#modal-accept-nft-order-confirm").show();
+			}
+			else if (vm.action.method=='cancel_nft_sell_order')
+			{
+				console.log("cancel sell order");
+				console.log(vm.action.token_id);
+				console.log(vm.action.nft_id);
+				UIkit.modal("#modal-cancel-nft-sell-order-confirm").show();
+			}
 		},
 		initWallet()
 		{
-	          let vm=this;
-	          let wallet;
-	          this.walletLoginSuccess=true;
-	          this.page="wallet-loading";
-		      const walletFile = vm.active_wallet_name; // File name of the wallet database, persistence using dexie db backend only works on the browser
-		      const password = vm.password; // Password used to encrypt and open the wallet database
-		      const spendingPassword = vm.password; // Password used to send transactions
-		      const zapwallettxes = false; // Should the wallet be cleared of its history?
-		      const log = true; // Log to console
-	          njs.wallet.Init().then(async () => {
-	    	  if (vm.active_wallet_already_exist)
-			  {
+			let vm=this;
+			let wallet;
+			this.walletLoginSuccess=true;
+			this.page="wallet-loading";
+			const walletFile = vm.active_wallet_name; // File name of the wallet database, persistence using dexie db backend only works on the browser
+			const password = vm.password; // Password used to encrypt and open the wallet database
+			const spendingPassword = vm.password; // Password used to send transactions
+			const zapwallettxes = false; // Should the wallet be cleared of its history?
+			const log = true; // Log to console
+			njs.wallet.Init().then(async () => {
+			if (vm.active_wallet_already_exist)
+			{
 				console.log("Loading existing wallet : " + vm.active_wallet_name);
 				wallet=new njs.wallet.WalletFile(
 				{
@@ -1726,9 +1735,9 @@ export default
 					password:password,
 					log:log
 				})
-			  }
-			  else
-			  {
+			}
+			else
+			{
 				console.log("Creating and loading new wallet : " + vm.active_wallet_name + "("+vm.walletType+")" + "("+vm.network+")");
 				console.log("Password : " + password);
 				wallet=new njs.wallet.WalletFile(
@@ -1741,152 +1750,138 @@ export default
 					spendingPassword:spendingPassword,
 					zapwallettxes:zapwallettxes,
 					log:log
-			 	})
-			  }
-			  console.log("is open -> " + wallet.db.open);
-	          window.wallet=wallet;
-
-	          wallet.on("new_mnemonic", (mnemonic) =>
-	          {
-	          	if (!vm.db_load_failed)
-	          	{
-		          	vm.mnemonics=mnemonic;
-		          	vm.wordArrayOriginal = vm.mnemonics.toString().split(' ');
-		          	vm.wordArray = vm.shuffle(vm.mnemonics.toString().split(' '));
-		            console.log(`wallet created with mnemonic ${mnemonic} - please back it up!`);
-	            }
-	          });
-
-	          wallet.on("loaded", async () =>
-	          {
-	            vm.status="Wallet loaded";
-	            console.log("wallet loaded");
-	            wallet.NavReceivingAddresses(true).then((value) =>
-	            {
-	              vm.publicAddress=value[0].address;
-	              console.log("NAV receiving address : " + value[0].address);
-	            });
-	            wallet.xNavReceivingAddresses(false).then((value) =>
-	            {
-	              let xNAVAddress=value.filter((e) => e.path == "0/0")[0].address;
-	              vm.privateAddress=xNAVAddress;
-	              console.log("xNAV receiving address : " + xNAVAddress);
-	              try
-	              {
-		              chrome.storage.local.set({privateAddress: vm.privateAddress}, function()
-		              {
-					    console.log('Private address saved to storage');
-					  });
-				  }
-				  catch (e) {}
-				  if (vm.action)
-				  {
-		            vm.processAction();
-	              }
-	            });
-	            await wallet.Connect();
-	          });
-
+				})
+			}
+			console.log("is open -> " + wallet.db.open);
+			window.wallet=wallet;
+			wallet.on("new_mnemonic", (mnemonic) =>
+			{
+				if (!vm.db_load_failed)
+				{
+					vm.mnemonics=mnemonic;
+					vm.wordArrayOriginal = vm.mnemonics.toString().split(' ');
+					vm.wordArray = vm.shuffle(vm.mnemonics.toString().split(' '));
+					console.log(`wallet created with mnemonic ${mnemonic} - please back it up!`);
+				}
+			});
+			wallet.on("loaded", async () =>
+			{
+				vm.status="Wallet loaded";
+				console.log("wallet loaded");
+				wallet.NavReceivingAddresses(true).then((value) =>
+				{
+					vm.publicAddress=value[0].address;
+					console.log("NAV receiving address : " + value[0].address);
+				});
+				wallet.xNavReceivingAddresses(false).then((value) =>
+				{
+					let xNAVAddress=value.filter((e) => e.path == "0/0")[0].address;
+					vm.privateAddress=xNAVAddress;
+					console.log("xNAV receiving address : " + xNAVAddress);
+					try
+					{
+						chrome.storage.local.set({privateAddress: vm.privateAddress}, function()
+						{
+							console.log('Private address saved to storage');
+						});
+					}
+					catch (e) {}
+					if (vm.action)
+					{
+						vm.processAction();
+					}
+				});
+				await wallet.Connect();
+			});
 			wallet.on('connected', async(node) =>
 			{
 				console.log('connected to -> ' + node);
 				vm.current_node=node;
-	            vm.status="Connected, waiting for sync...";
-
+				vm.status="Connected, waiting for sync...";
 			});
-
-	          wallet.on("sync_status", async (progress, pending) => {
-	          	vm.progress=progress;
-	            vm.status="Sync progress : % " + progress;
-	          });
-
-	          wallet.on("db_load_error", async (e) => {
-	            vm.status="Database load error";
-	            vm.db_load_failed=true;
-	            console.log("Error Load DB -> " + e);
+			wallet.on("sync_status", async (progress, pending) => {
+				vm.progress=progress;
+				vm.status="Sync progress : % " + progress;
+			});
+			wallet.on("db_load_error", async (e) => {
+				vm.status="Database load error";
+				vm.db_load_failed=true;
+				console.log("Error Load DB -> " + e);
 				UIkit.modal.alert("<p>Wallet cannot loaded.</p><p>"+e+"</p>");
-	          });
-
-	          wallet.on("sync_started", async () => {
-	            console.log("sync_started");
-	            vm.status="Sync started...";
-	          });
-
-	          wallet.on("sync_finished", async () =>
-	          {
-	            vm.status="Sync finished...";
-	          	vm.progress=100;
-  	            wallet.GetBalance().then((value) =>
-	            {
-	            	vm.balance=value;
-	            	if (vm.action)
-	            	{
-	            		vm.processAction();
-                	}
-               	});
+			});
+			wallet.on("sync_started", async () => {
+				console.log("sync_started");
+				vm.status="Sync started...";
+			});
+			wallet.on("sync_finished", async () =>
+			{
+				vm.status="Sync finished...";
+				vm.progress=100;
+				wallet.GetBalance().then((value) =>
+				{
+					vm.balance=value;
+					if (vm.action)
+					{
+						vm.processAction();
+					}
+				});
 				wallet.GetMyTokens(vm.password).then((value) =>
 				{
 					vm.isPrivateTokensSynced=true;
 					vm.privateTokens=value;
 				})
 				.catch(function(e)
-	          	{
-	          		console.log("Error while getting tokens -> " + e.message);
+				{
+					console.log("Error while getting tokens -> " + e.message);
 				});
 				wallet.GetHistory().then((value) =>
 				{
 					vm.history=value;
 					console.log(vm.history);
 				});
-	            console.log("sync_finished");
-	            console.log(`Balance ${JSON.stringify(await wallet.GetBalance())}`);
-	          });
-
-	          wallet.on("bootstrap_started", () => {
-	            vm.status="Bootstrap started...";
-	            console.log("bootstrap_started");
-	          });
-
-	          wallet.on("bootstrap_progress", (count) => {
-	            console.log("bootstrap_progress -> " + count);
-	            vm.status="Bootstrap progress :  " + count;
-	          });
-
-	          wallet.on("bootstrap_finished", () => {
-	            vm.status="Bootstrap finished...";
-	            console.log("bootstrap_finished");
-	          });
-
-			  wallet.on('new_block', async (height) => 
-			  {
+				console.log("sync_finished");
+				console.log(`Balance ${JSON.stringify(await wallet.GetBalance())}`);
+			});
+			wallet.on("bootstrap_started", () => {
+				vm.status="Bootstrap started...";
+				console.log("bootstrap_started");
+			});
+			wallet.on("bootstrap_progress", (count) => {
+				console.log("bootstrap_progress -> " + count);
+				vm.status="Bootstrap progress :  " + count;
+			});
+			wallet.on("bootstrap_finished", () => {
+				vm.status="Bootstrap finished...";
+				console.log("bootstrap_finished");
+			});
+			wallet.on('new_block', async (height) => 
+			{
 				vm.height=height;
-			  });
-
-	          wallet.on("new_tx", async (list) => {
-	            console.log(`Received transaction ${JSON.stringify(list)}`);
-	            console.log(`Balance ${JSON.stringify(await wallet.GetBalance())}`);
-	          });
-
-	          wallet.Load({bootstrap: njs.wallet.xNavBootstrap})
-	          .then(() =>
-	          {
-	          	console.log("wallet loaded");
-	          	if (this.isNewWallet)
-	          	{
-	          		this.page="verify-mnemonics";
-	          	}
-	          	else
-	          	{
-	         		this.walletUnlocked=true;
-	         		this.page="home";
-	         	}
-	          })
-	          .catch(function(e)
-	          {
-	        	vm.walletLoginSuccess=false;
-	        	vm.page="select-wallet";
-			  })
- 	        });
+			});
+			wallet.on("new_tx", async (list) => {
+				console.log(`Received transaction ${JSON.stringify(list)}`);
+				console.log(`Balance ${JSON.stringify(await wallet.GetBalance())}`);
+			});
+			wallet.Load({bootstrap: njs.wallet.xNavBootstrap})
+				.then(() =>
+				{
+					console.log("wallet loaded");
+					if (this.isNewWallet)
+					{
+						this.page="verify-mnemonics";
+					}
+					else
+					{
+						this.walletUnlocked=true;
+						this.page="home";
+					}
+				})
+				.catch(function(e)
+				{
+					vm.walletLoginSuccess=false;
+					vm.page="select-wallet";
+				})
+			});
 		},
 	}
 };
@@ -1921,25 +1916,26 @@ body
 {
 	font-size:10pt !important;
 }
-::-webkit-scrollbar {
-    background-color: #fff;
-    width: 16px;
+::-webkit-scrollbar
+{
+	background-color: #fff;
+	width: 16px;
 }
-
 /* background of the scrollbar except button or resizer */
-::-webkit-scrollbar-track {
-    background-color: #fff;
+::-webkit-scrollbar-track
+{
+	background-color: #fff;
 }
-
 /* scrollbar itself */
-::-webkit-scrollbar-thumb {
-    background-color: #babac0;
-    border-radius: 16px;
-    border: 4px solid #fff;
+::-webkit-scrollbar-thumb
+{
+	background-color: #babac0;
+	border-radius: 16px;
+	border: 4px solid #fff;
 }
-
 /* set button(top and bottom of the scrollbar) */
-::-webkit-scrollbar-button {
-    display:none;
+::-webkit-scrollbar-button
+{
+	display:none;
 }
 </style>

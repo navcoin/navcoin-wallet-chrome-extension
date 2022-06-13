@@ -1,8 +1,1 @@
-chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-    // If the received message has the expected format...
-    if (msg.text === 'report_back') {
-        // Call the specified callback, passing
-        // the web-page's DOM content as argument
-        sendResponse(document.all[0].outerHTML);
-    }
-});
+console.log("content.js");let connected=!1;chrome.storage.local.get({privateAddress:"",trustedSites:[]},(function(e){e.trustedSites.includes(window.origin)&&(connected=!0);const n=chrome.runtime.getManifest();window.postMessage({type:"extension",version:n.version,connected,address:connected&&e.privateAddress?e.privateAddress:void 0},"*")})),window.addEventListener("message",(function(e){e.source==window&&e.data.method&&chrome.runtime.sendMessage(e.data,(function(e){console.log(e)}))}),!1);

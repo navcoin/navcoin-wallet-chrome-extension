@@ -1,1 +1,1 @@
-const WebAssembly = undefined;
+const WebAssembly=void 0;

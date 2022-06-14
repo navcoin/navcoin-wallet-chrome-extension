@@ -21,7 +21,7 @@ function openTab(options) {
 function openPopup(filename,o)
 {
   console.log("Opening popup...");
-  const NOTIFICATION_HEIGHT = 640;
+  const NOTIFICATION_HEIGHT = 600;
   const NOTIFICATION_WIDTH = 400;
   chrome.windows.getCurrent(function(win)
   {

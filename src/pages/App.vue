@@ -2,8 +2,8 @@
 	<div class="container">
 		<div class="uk-container" v-if="walletUnlocked" style="margin-top:5px;">
 			<div class="uk-inline">
-				<button style="margin-left:5px;" class="uk-button uk-button-small uk-button-default" type="button" v-if="page!='home'" v-on:click="changePage('home')"><i class="fa-solid fa-home"></i>&nbsp;</button>
-				<button style="margin-left:5px;" class="uk-button uk-button-small uk-button-default" type="button"><i class="fa-solid fa-ellipsis-vertical"></i>&nbsp;</button>
+				<button class="uk-button uk-button-small uk-button-default" type="button" v-if="page!='home'" v-on:click="changePage('home')"><i class="fa-solid fa-home"></i>&nbsp;</button>
+				<button class="uk-button uk-button-small uk-button-default" type="button"><i class="fa-solid fa-ellipsis-vertical"></i>&nbsp;</button>
 				<div uk-dropdown='mode:click' id="menu">
 					<div class="uk-dropdown-grid uk-child-width-1-2@m" uk-grid>
 						<div>
@@ -18,6 +18,7 @@
 								<li><a href="#" v-on:click="changePage('sign-message')">Sign message</a></li>
 								<li><a href="#" v-on:click="changePage('verify-message')">Verify message</a></li>
 								<li class="uk-nav-header">Wallet</li>
+								<li><a href="#" v-on:click="closeWallet()">Close Wallet</a></li>
 								<li><a href="#" v-on:click="changePage('backup-wallet')">Backup Wallet</a></li>
 								<li><a href='#' v-on:click="changePage('remove-wallet')">Remove Wallet</a></li>
 								<li class="uk-nav-divider"></li>
@@ -27,7 +28,9 @@
 					</div>
 				</div>
 			</div>
-			<div class="uk-align-right">
+		</div>
+		<div class="uk-container" v-if="walletUnlocked&&page=='home'" style="margin-top:5px;">
+			<div class="uk-inline">
 				<div v-show="progress!=100">
 					<span uk-spinner style="width:14px;height:14px;"></span>&nbsp;<small>{{status}}</small>
 				</div>
@@ -287,7 +290,7 @@
 					<input class="uk-input" placeholder="Password" type="password" v-model="password"></input>
 				</div>
 				<div class="uk-margin">
-					<button class="uk-button uk-button-secondary uk-width-1-1" v-on:click="unlockWallet()"><i class="fa-solid fa-lock"></i>&nbsp;Unlock Wallet</button>
+					<button class="uk-button uk-button-secondary uk-width-1-1" v-on:click="unlockWallet()"><i class="fa-solid fa-unlock"></i>&nbsp;Unlock Wallet</button>
 				</div>
 				<div class="uk-margin">
 					<button class="uk-button uk-button-primary uk-width-1-1" v-on:click="createNewWallet()"><i class="fa-solid fa-plus"></i>&nbsp;Create New Wallet</button>
@@ -536,7 +539,7 @@
 							<div uk-grid>
 								<div style="width:64px;height:auto;">
 									<center>
-										<i class="fa-3x fa-solid fa-eye-slash"></i>
+										<i class="fa-3x fa-solid fa-coins"></i>
 									</center>
 								</div>
 								<div>
@@ -550,7 +553,7 @@
 								</div>
 							</div>
 						</li>
-						<li class="uk-padding-small uk-light card-private-tokens" v-if="balance&&privateTokens">
+						<!--<li class="uk-padding-small uk-light card-private-tokens" v-if="balance&&privateTokens">
 							<div uk-grid>
 								<div style="width:64px;height:auto;">
 									<center>
@@ -566,7 +569,7 @@
 									</ul>
 								</div>
 							</div>
-						</li>
+						</li>!-->
 						<li class="uk-padding-small uk-light card-private-nfts" v-if="balance&&privateTokens">
 							<div uk-grid>
 								<div style="width:64px;height:auto;">
@@ -854,8 +857,19 @@ export default
 		let vm=this;
 		vm.njs=njs;
 		console.log("navcoin-js build "+njs.version);
-		var views = chrome.extension.getViews({ type: "popup" });
-		console.log(views);
+		var views=[];
+		try
+		{
+			views=chrome.extension.getViews({ type: "popup" });
+			console.log("Popup mode...");
+			console.log(views);
+		}
+		catch (e)
+		{
+			console.log("Window mode...");
+			vm.listWallets();
+		}
+		console.log("Views length -> " + views.length);
 		if (views.length>0)
 		{
 			vm.listWallets();
@@ -1044,12 +1058,31 @@ export default
 		},
 		removeWallet()
 		{
+			let vm=this;
 			if (this.v_password==this.password)
 			{
+				wallet.Disconnect();
+				wallet.CloseDb();
 				njs.wallet.WalletFile.RemoveWallet(this.active_wallet_name).then(() =>
 				{
 					console.log("Wallet "+this.active_wallet_name+" removed.");
-					UIkit.notification("<i class='fas fa-check'></i>&nbsp;Wallet removed", {status:'success'})
+					UIkit.notification("<i class='fas fa-check'></i>&nbsp;Wallet removed", {status:'success'});
+					njs.wallet.WalletFile.ListWallets().then((wallets) =>
+					{
+						console.log("Remaining wallet numbers : " + wallets.length);
+						if (wallets.length<1)
+						{
+							vm.changePage("welcome");
+						}
+						else
+						{
+							vm.changePage("select-wallet");
+						}
+					});
+				})
+				.catch((e) =>
+				{
+					UIkit.modal.alert(e.message);
 				});
 			}
 			else
@@ -1250,6 +1283,16 @@ export default
 			}
 			catch(e)
 			{}
+		},
+		closeWallet:function()
+		{
+			this.balance=undefined;
+			this.privateTokens=[];
+			this.password=undefined;
+			this.password_again=undefined;
+			wallet.Disconnect();
+			wallet.CloseDb();
+			this.changePage("select-wallet");
 		},
 		changePage:function(page)
 		{
@@ -2154,6 +2197,7 @@ export default
 			}
 			console.log("is open -> " + wallet.db.open);
 			window.wallet=wallet;
+			window.njs=njs;
 			wallet.on("new_mnemonic", (mnemonic) =>
 			{
 				if (!vm.db_load_failed)
@@ -2290,7 +2334,8 @@ export default
 
 body
 {
-	min-width:385px;
+	min-width:400px;
+	min-height:600px;
 	font-size:10pt !important;
 }
 

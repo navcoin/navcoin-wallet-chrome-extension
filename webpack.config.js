@@ -17,13 +17,19 @@ module.exports = {
         publicPath: DIST,
     },
     devServer: {
-        compress: true,
+        compress: false,
         open: true,
         hot: true,
+        inline: true,
         publicPath: '/',
         contentBase: DIST,
         port: 9011,
         writeToDisk: true,
+        disableHostCheck: true,
+        headers: {'Access-Control-Allow-Origin': '*'},
+        watchOptions: {
+            poll: 1000,
+        },        
     },
     module: {
         rules: [
@@ -50,7 +56,6 @@ module.exports = {
     plugins: [
     new NodePolyfillPlugin(),
         new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
-        // for build scripts
         new CopyPlugin({
             patterns: [
                 {

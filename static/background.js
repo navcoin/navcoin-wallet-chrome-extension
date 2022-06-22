@@ -6,23 +6,11 @@ chrome.runtime.onInstalled.addListener(() =>
   console.log('Welcome to Navcoin Wallet');
 });
 
-function openTab(options) {
-  return new Promise((resolve, reject) => {
-    chrome.tabs.create(options).then((newTab) => {
-      const error = checkForError();
-      if (error) {
-        return reject(error);
-      }
-      return resolve(newTab);
-    });
-  });
-}
-
 function openPopup(filename,o)
 {
   console.log("Opening popup...");
-  const NOTIFICATION_HEIGHT = 600;
-  const NOTIFICATION_WIDTH = 400;
+  const NOTIFICATION_WIDTH = 430;
+  const NOTIFICATION_HEIGHT = 640;
   chrome.windows.getCurrent(function(win)
   {
     top = 0;
@@ -62,7 +50,7 @@ function processExternalMessage(message, sender, sendResponse)
     for (var i=tabs.length-1; i>=0; i--)
     {
       console.log(tabs[i].url);
-      if (tabs[i].url === "chrome-extension://"+extension_id+"/index.html")
+      if (tabs[i].url === "chrome-extension://"+extension_id+"/index.html"||tabs[i].url === "chrome-extension://"+extension_id+"/index.html#")
       {
         doFlag = false;
         console.log("window exist");
@@ -366,6 +354,51 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse)
         sendResponse({method: message.method,result:true});
     }
 });
+
+chrome.runtime.onInstalled.addListener(({ reason }) => {
+  if (reason === 'install')
+  {
+    openExtensionInBrowser();
+  }
+});
+
+function checkForError() {
+  const { lastError } = chrome.runtime;
+  if (!lastError) {
+    return undefined;
+  }
+  // if it quacks like an Error, its an Error
+  if (lastError.stack && lastError.message) {
+    return lastError;
+  }
+  // repair incomplete error object (eg chromium v77)
+  return new Error(lastError.message);
+}
+
+function openTab(options)
+{
+    return new Promise((resolve, reject) => {
+      chrome.tabs.create(options).then((newTab) => {
+        const error = checkForError();
+        if (error) {
+          return reject(error);
+        }
+        return resolve(newTab);
+      });
+    });
+}
+
+function openExtensionInBrowser(route = null,queryString = null,keepWindowOpen = false)
+{
+    let extensionURL = chrome.runtime.getURL('index.html');
+    if (route) {
+      extensionURL += `#${route}`;
+    }
+    if (queryString) {
+      extensionURL += `?${queryString}`;
+    }
+    openTab({ url: extensionURL });
+}
 
 function m_accept_connection(address)
 {

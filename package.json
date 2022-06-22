@@ -6,7 +6,7 @@
     "deploy": "./deploy.sh",
     "lint": "eslint . --ext js,json",
     "lint:fix": "eslint . --fix --ext js,json",
-    "start": "webpack serve",
+    "start": "webpack serve --mode development --hot --inline --progress",
     "build": "webpack --mode production",
     "test": "yarn lint"
   },
@@ -31,7 +31,7 @@
     "axios": "^0.27.1",
     "css-loader": "^5.2.6",
     "moment": "^2.29.3",
-    "navcoin-js": "^1.1.145",
+    "navcoin-js": "^1.1.153",
     "net": "^1.0.2",
     "node-polyfill-webpack-plugin": "^1.1.4",
     "sass-loader": "^10.1.1",

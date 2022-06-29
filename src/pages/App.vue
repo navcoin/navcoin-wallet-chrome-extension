@@ -2129,6 +2129,7 @@ export default {
         console.log(this.action.token_id);
         console.log(this.action.nft_id);
         console.log(this.action.price);
+        console.log(this.action.api_url);
         console.log(this.privateAddress);
         console.log("Submitting sell order...");
         UIkit.modal("#modal-please-wait").show();

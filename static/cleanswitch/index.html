@@ -1,0 +1,19 @@
+    <link rel="stylesheet" href="clean-switch.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<div id="app">
+{{isPrivateTransaction}}
+                   <label class="cl-switch">
+                      <input type="checkbox" name="x" id="x" v-model="isPrivateTransaction" v-on:click="isPrivateTransaction=!isPrivateTransaction">
+                      <span class="switcher"></span>
+                      <span class="label">Private Transaction</span>
+                    </label>
+                </div>
+                <script>
+                    var app = new Vue({
+  el: '#app',
+  data: {
+    message: 'Hello Vue!',
+    isPrivateTransaction:false
+  }
+})
+                </script>

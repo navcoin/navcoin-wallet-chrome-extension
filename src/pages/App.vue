@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="uk-container" v-if="walletUnlocked" style="margin-top:5px;">
-      <div class="uk-inline">
+      <div class="uk-inline" style="width:100%">
         <button class="uk-button uk-button-small uk-button-default" type="button"><i
           class="fa-solid fa-ellipsis-vertical"></i>&nbsp;
         </button>
@@ -41,15 +41,11 @@
         <button class="uk-button uk-button-small uk-button-default" type="button" v-if="page!='home'"
                 v-on:click="changePage('home')"><i class="fa-solid fa-home"></i>&nbsp;
         </button>
-      </div>
-    </div>
-    <div class="uk-container" v-if="walletUnlocked&&page=='home'" style="margin-top:5px;">
-      <div class="uk-inline">
-        <div v-show="progress!=100">
+        <span v-if="progress!=100" style="margin-left:5px;width:100%;">
           <span uk-spinner style="width:14px;height:14px;"></span>&nbsp;<small>{{ status }}</small>
-        </div>
-        <span v-if="current_node"><small><i class="fa-solid fa-bolt"></i>&nbsp;{{ current_node }}</small></span>
-        <span v-if="height"><small><i class="fa-solid fa-hammer"></i>&nbsp;{{ height }}</small></span>
+        </span>
+        <span v-if="progress==100" style="float:right;margin-left:5px;margin-bottom: 0px !important;"><small><i class="fa-solid fa-hammer"></i>&nbsp;{{ height }}</small></span>
+        <span v-if="progress==100" style="float:right;margin-left:5px;margin-bottom: 0px !important;"><small><i class="fa-solid fa-bolt"></i>&nbsp;{{ current_node }}</small></span>
       </div>
     </div>
     <div class="uk-container" v-if="page=='verify-mnemonics'" style="margin-top:15px;">
@@ -121,20 +117,32 @@
         <li><a v-on:click="isPrivateToPublic=true">From Private</a></li>
       </ul>
       <ul class="uk-switcher uk-margin">
-        <li>{{ formatBalance(balance.nav.confirmed) }} NAV Available</li>
-        <li>{{ formatBalance(balance.xnav.confirmed) }} xNAV Available</li>
+        <li v-if="balance">{{ formatBalance(balance.nav.confirmed) }} NAV Available</li>
+        <li v-if="balance">{{ formatBalance(balance.xnav.confirmed) }} xNAV Available</li>
       </ul>
       <div class="uk-margin">
         <input class="uk-input" placeholder="Amount" type="number" v-model="swap_amount"></input>
       </div>
       <div class="uk-margin">
-        <label><input class="uk-checkbox" type="checkbox" v-model="isSwapIncludesTxFee"> Amount includes transaction fee</label>
+          <h5>Includes Transaction Fee</h5>
+          <div class="uk-grid uk-grid-small" uk-grid>
+            <div class="uk-width-auto">
+              <label class="uk-switch" for="lbl-swap">
+                <input type="checkbox" id="lbl-swap" :checked="isSwapIncludesTxFee">
+                <div class="uk-switch-slider" v-on:click="isSwapIncludesTxFee=!isSwapIncludesTxFee"></div>
+              </label>
+            </div>
+            <div class="uk-width-expand">
+              <p v-if="isSwapIncludesTxFee">Transaction fee will be included in total amount</p>
+              <p v-else>Transaction fee will not be included in total amount</p>
+            </div>
+          </div>
       </div>
-      <div class="uk-button-group uk-margin uk-width-1-1">
-        <button class="uk-button uk-button-default" v-on:click="swapUseAllFunds()"><i class="fa-solid fa-check"></i>&nbsp;Use
+      <div class="uk-margin">
+        <button class="uk-button uk-button-default" v-on:click="swapUseAllFunds()"><i class="fa-solid fa-coins"></i>&nbsp;Use
           All Funds
         </button>
-        <button :disabled="!swap_amount" class="uk-button uk-button-primary" v-on:click="swap()"><i
+        <button :disabled="!swap_amount" class="uk-button uk-button-primary uk-align-right" v-on:click="swap()"><i
           class="fa-solid fa-arrow-right-arrow-left"></i>&nbsp;Swap
         </button>
       </div>
@@ -182,7 +190,7 @@
         <img style="width:50%;height:auto" src="images/nav-logo-border.png">
         <div class="uk-margin">
           <p>Navcoin Wallet Extension for Chrome</p>
-          <p>Build 1.0.0</p>
+          <p>Build {{version}}</p>
           <p>Developed by Navcoin Developers</p>
           <a href="https://www.navcoin.org">https://www.navcoin.org</a>
         </div>
@@ -769,7 +777,7 @@
           </ul>
         </li>
         <li>
-          <ul class="uk-subnav uk-subnav-pill"
+          <ul class="uk-subnav uk-subnav-pill uk-subnav-pill-o"
               uk-switcher="animation: uk-animation-slide-left-medium, uk-animation-slide-right-medium">
             <li><a href="#">Public</a></li>
             <li><a href="#">Private</a></li>
@@ -779,26 +787,26 @@
               uk-switcher="animation: uk-animation-slide-left-medium, uk-animation-slide-right-medium">
             <li>
               <center>
+                <div v-html="qrcode_nav"></div>
                 <p>{{ publicAddress }}</p>
                 <button class="uk-button uk-button-default" v-on:click="doCopy(publicAddress)"><i
                   class="fa-solid fa-copy"></i>&nbsp;Copy
                 </button>
-                <div v-html="qrcode_nav"></div>
               </center>
             </li>
             <li>
               <center>
+                <div v-html="qrcode_xnav"></div>
                 <div class="address" style="word-break:break-word;">
                   <p>{{ privateAddress }}</p>
                 </div>
                 <button class="uk-button uk-button-default" v-on:click="doCopy(privateAddress)"><i
                   class="fa-solid fa-copy"></i>&nbsp;Copy
                 </button>
-                <div v-html="qrcode_xnav"></div>
               </center>
             </li>
             <li>
-              <div v-show="history.length>0">
+              <div v-if="history.length>0">
                 <center>
                   <button class="uk-button uk-button-small uk-button-default" :disabled="currentPage==1" @click="prev">
                     <i class="fa-solid fa-arrow-left"></i>&nbsp;
@@ -809,6 +817,11 @@
                     class="fa-solid fa-arrow-right"></i>&nbsp;
                   </button>
                 </center>
+              </div>
+              <div v-else>
+                <div class="uk-alert-warning" uk-alert>
+                  <p>You do not have a transaction.</p>
+                </div>
               </div>
               <div class="uk-card uk-card-small  uk-card-default uk-width-1-2@m" v-for="(tx,i) in paginatedTxs"
                    style="margin-top:15px;margin-bottom:15px;">
@@ -863,7 +876,7 @@
           </ul>
         </li>
         <li>
-          <ul class="uk-subnav uk-subnav-pill"
+          <ul class="uk-subnav uk-subnav-pill uk-subnav-pill-o"
               uk-switcher="animation: uk-animation-slide-left-medium, uk-animation-slide-right-medium">
             <li><a href="#">Native</a></li>
             <li><a href="#">Token</a></li>
@@ -875,32 +888,48 @@
               <form>
                 <fieldset class="uk-fieldset">
                   <div class="uk-margin">
-                    <button class="uk-button uk-button-default uk-button-small" type="button"
-                            v-on:click="isPrivateTransaction=!isPrivateTransaction"><span v-show="isPrivateTransaction"
-                                                                                          class="fa-solid fa-eye-slash"></span><span
-                      v-show="!isPrivateTransaction" class="fa-solid fa-eye"></span>&nbsp;Private Transaction
-                    </button>
-                  </div>
-                  <div class="uk-margin">
-                    <button class="uk-button uk-button-default uk-button-small" type="button"
-                            v-on:click="isIncludesTxFee=!isIncludesTxFee"><span v-show="isIncludesTxFee"
-                                                                                class="fa-solid fa-check"></span><span
-                      v-show="!isIncludesTxFee" class="fa-solid fa-circle-xmark"></span>&nbsp;Includes Transaction Fee
-                    </button>
-                  </div>
-                  <div class="uk-margin">
                     <input class="uk-input" placeholder="Address" type="text" v-model="address"></input>
                   </div>
                   <div class="uk-margin">
                     <input class="uk-input" placeholder="Amount" type="number" v-model="amount"></input>
                   </div>
                   <div class="uk-margin">
-                    <button class="uk-button uk-button-small uk-button-secondary" :disabled="!address || !amount"
-                            v-on:click="send()"><i class="fa-solid fa-paper-plane"></i>&nbsp;Send
-                    </button>
-                    <button class="uk-button uk-button-small uk-button-primary uk-align-right"
+                      <div class="uk-grid uk-grid-small" uk-grid>
+                        <div class="uk-width-auto">
+                          <label class="uk-switch" for="lbl-private-transaction">
+                            <input type="checkbox" id="lbl-private-transaction" :checked="isPrivateTransaction">
+                            <div class="uk-switch-slider uk-switch-small" v-on:click="isPrivateTransaction=!isPrivateTransaction"></div>
+                          </label>
+                        </div>
+                        <div class="uk-width-expand">
+                          <h5 style="margin:0px;">Private Transaction</h5>
+                          <p style="margin:0px;" v-if="isPrivateTransaction">Private (xNAV) balance will be used</p>
+                          <p style="margin:0px;" v-else>Public (NAV) balance will be used</p>
+                        </div>
+                      </div>
+                  </div>
+                  <div class="uk-margin">
+                      <div class="uk-grid uk-grid-small" uk-grid>
+                        <div class="uk-width-auto">
+                          <label class="uk-switch" for="lbl-includes-tx-fee">
+                            <input type="checkbox" id="lbl-includes-tx-fee" :checked="isIncludesTxFee">
+                            <div class="uk-switch-slider uk-switch-small" v-on:click="isIncludesTxFee=!isIncludesTxFee"></div>
+                          </label>
+                        </div>
+                        <div class="uk-width-expand">
+                          <h5 style="margin:0px;">Includes Transaction Fee</h5>
+                          <p style="margin:0px;" v-if="isIncludesTxFee">Transaction fee will be included in total amount</p>
+                          <p style="margin:0px;" v-else>Transaction fee will not be included in total amount</p>
+                        </div>
+                      </div>
+                  </div>
+                  <div class="uk-margin">
+                    <button class="uk-button uk-button-default"
                             v-on:click="useAllFunds()">
-                      Use All Funds
+                      <i class="fa-solid fa-coins"></i>&nbsp;Use All Funds
+                    </button>
+                    <button class="uk-button uk-button-primary uk-align-right" :disabled="!address || !amount"
+                            v-on:click="send()"><i class="fa-solid fa-paper-plane"></i>&nbsp;Send
                     </button>
                   </div>
                 </fieldset>
@@ -926,7 +955,7 @@
                     <input class="uk-input" placeholder="Memo" type="text" v-model="token_memo"></input>
                   </div>
                   <div class="uk-margin">
-                    <button class="uk-button uk-button-small uk-button-secondary"
+                    <button class="uk-button uk-align-right uk-button-primary"
                             :disabled="!token_id || !token_xnav_address || !token_amount"
                             v-on:click="sendPrivateToken()"><i class="fa-solid fa-paper-plane"></i>&nbsp;Send
                     </button>
@@ -956,7 +985,7 @@
                     <input class="uk-input" placeholder="Memo" type="text" v-model="nft_memo"></input>
                   </div>
                   <div class="uk-margin">
-                    <button class="uk-button uk-button-small uk-button-secondary"
+                    <button class="uk-button uk-align-right uk-button-primary"
                             :disabled="!nft_token_id || !nft_id || !nft_xnav_address"
                             v-on:click="sendPrivateNFT()"><i class="fa-solid fa-paper-plane"></i>&nbsp;Send
                     </button>
@@ -1045,6 +1074,11 @@
               </div>
             </div>
           </div>
+          <div v-else>
+            <div class="uk-alert-warning" uk-alert>
+              <p>You do not have an NFT collection.</p>
+            </div>
+          </div>
         </li>
       </ul>
     </div>
@@ -1072,6 +1106,7 @@ export default {
             code: "testnet"
           }
         ],
+      version:"1.0.2",
       walletType: "next",
       network: "testnet",
       wallet_name: "",
@@ -1258,7 +1293,13 @@ export default {
           this.amount = (this.balance.nav.confirmed + this.balance.staked.confirmed) / 1e8;
         }
       },
-      swapUseAllFunds() {
+      swapUseAllFunds()
+      {
+        if (!this.balance)
+        {
+            UIkit.modal.alert("Wallet synchronizing, try again later...");
+            return;
+        }
         if (this.isPrivateToPublic) {
           this.swap_amount = (this.balance.xnav.confirmed) / 1e8;
         } else {
@@ -1267,6 +1308,7 @@ export default {
       },
       swap() {
         let vm = this;
+        vm.process_message = "Swapping assets...";
         if (!this.swap_amount) {
           UIkit.modal.alert("Missing amount");
           return;
@@ -1278,7 +1320,7 @@ export default {
           try {
             UIkit.modal("#modal-please-wait").show();
             wallet.xNavCreateTransaction(publicAddress, amount, "", vm.password, vm.isSwapIncludesTxFee).then(function(tx) {
-              let msg = "<h3>Swap</h3><p>Amount to swap : " + sb.toBitcoin((vm.isIncludesTxFee ? amount - tx.fee : amount)) + " xNAV</p><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Total amount : " + sb.toBitcoin((vm.isIncludesTxFee ? amount : amount + tx.fee)) + " xNAV</p>" + "<p>Do you confirm swap?</p>";
+              let msg = "<h3>Swap</h3><p>Amount to swap : " + sb.toBitcoin((vm.isSwapIncludesTxFee ? amount - tx.fee : amount)) + " xNAV</p><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Total amount : " + sb.toBitcoin((vm.isSwapIncludesTxFee ? amount : amount + tx.fee)) + " xNAV</p>" + "<p>Do you confirm swap?</p>";
               UIkit.modal.confirm(msg).then(function() {
                   wallet.SendTransaction(tx.tx).then(function(result) {
                     if (result.error) {
@@ -1305,7 +1347,7 @@ export default {
           try {
             UIkit.modal("#modal-please-wait").show();
             wallet.NavCreateTransaction(privateAddress, amount, "", vm.password, vm.isSwapIncludesTxFee).then(function(tx) {
-              let msg = "<h3>Swap</h3><p>Amount to swap : " + sb.toBitcoin((vm.isIncludesTxFee ? amount - tx.fee : amount)) + " NAV</p><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " NAV</p><p>Total amount : " + sb.toBitcoin((vm.isIncludesTxFee ? amount : amount + tx.fee)) + " NAV</p>" + "<p>Do you confirm swap?</p>";
+              let msg = "<h3>Swap</h3><p>Amount to swap : " + sb.toBitcoin((vm.isSwapIncludesTxFee ? amount - tx.fee : amount)) + " NAV</p><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " NAV</p><p>Total amount : " + sb.toBitcoin((vm.isSwapIncludesTxFee ? amount : amount + tx.fee)) + " NAV</p>" + "<p>Do you confirm swap?</p>";
               UIkit.modal.confirm(msg).then(function() {
                   wallet.SendTransaction(tx.tx).then(function(result) {
                     if (result.error) {
@@ -1744,7 +1786,8 @@ export default {
         console.log(this.action.max_supply);
         console.log("Creating transaction...");
         let vm = this;
-        UIkit.modal("#modal-please-wait").show();
+        vm.process_message = "Creating private token...";
+        setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
         wallet.CreateToken(this.action.name, this.action.symbol, this.action.max_supply * 1e8, this.password).then(function(response) {
           console.log(response);
           if (response.tx) {
@@ -1789,7 +1832,8 @@ export default {
         console.log(this.privateAddress);
         console.log("Creating transaction...");
         let vm = this;
-        UIkit.modal("#modal-please-wait").show();
+        vm.process_message = "Minting private token...";
+        setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
         wallet.MintToken(this.action.token_id, this.privateAddress, this.action.amount * 1e8, this.password).then(function(response) {
           console.log(response);
           if (response.tx) {
@@ -1848,12 +1892,13 @@ export default {
         }
       },
       acceptCreateTransaction() {
+        let vm = this;
         console.log("accepting create transaction");
         console.log(this.action.address);
         console.log(this.action.amount);
-        let vm = this;
+        vm.process_message = "Creating transaction...";
+        setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
         try {
-          UIkit.modal("#modal-please-wait").show();
           wallet.xNavCreateTransaction(this.action.address, this.action.amount, "", vm.password, vm.isIncludesTxFee).then(function(tx) {
             if (tx.tx) {
               let msg = "<h3>Create Transaction</h3><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Do you confirm transaction?</p>";
@@ -1901,13 +1946,14 @@ export default {
         }
       },
       acceptCancelNFTSellOrder() {
+        let vm = this;
         console.log("accepting cancel nft sell order");
         console.log(this.privateAddress);
         console.log(this.action.token_id);
         console.log(this.action.nft_id);
-        let vm = this;
+        vm.process_message = "Cancelling NFT Sell Order...";
+        setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
         try {
-          UIkit.modal("#modal-please-wait").show();
           wallet.tokenCreateTransaction(vm.privateAddress, 1, undefined, vm.password, vm.action.token_id, vm.action.nft_id).then(function(tx) {
             if (tx.tx) {
               let msg = "<h3>Cancel NFT Sell Order</h3><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Do you confirm transaction?</p>";
@@ -1994,7 +2040,8 @@ export default {
         console.log("Accepting create nft collection request...");
         console.log(this.action);
         let vm = this;
-        UIkit.modal("#modal-please-wait").show();
+        vm.process_message = "Creating NFT collection...";
+        setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
         wallet.CreateNft(this.action.name, this.action.scheme, this.action.max_supply * 1e8, this.password).then(function(tx) {
           UIkit.modal("#modal-please-wait").hide();
           if (tx.tx) {
@@ -2058,7 +2105,8 @@ export default {
         console.log("NFT Token ID ->" + this.mint_nft_token_id);
         console.log(this.action);
         let vm = this;
-        UIkit.modal("#modal-please-wait").show();
+        vm.process_message = "Minting NFT...";
+        setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
         wallet.MintNft(this.mint_nft_token_id, this.action.nft_id, this.privateAddress, this.action.scheme, this.password).then(function(tx) {
           if (tx.tx) {
             let msg = "<h3>Mint NFT</h3><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Do you confirm transaction?</p>";
@@ -2126,14 +2174,15 @@ export default {
         }
       },
       acceptCreateNFTSellOrder() {
+        let vm = this;
+        console.log("Submitting nft sell order...");
         console.log(this.action.token_id);
         console.log(this.action.nft_id);
         console.log(this.action.price);
         console.log(this.action.api_url);
         console.log(this.privateAddress);
-        console.log("Submitting sell order...");
-        UIkit.modal("#modal-please-wait").show();
-        let vm = this;
+        vm.process_message = "Submitting NFT Sell Order...";
+        setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
         let amount = parseFloat((vm.action.price * 1e8).toFixed(0));
         try {
           vm.process_message = "Creating NFT proof...";
@@ -2215,6 +2264,7 @@ export default {
       processAction() {
         let vm = this;
         if (vm.is_action_processed) return;
+        vm.process_message="";
         console.log("Processing action...");
         console.log(vm.action);
         vm.is_action_processed = true;
@@ -2252,7 +2302,7 @@ export default {
             console.log(vm.action.nft_id);
             console.log(vm.action.price);
             wallet.GetNftInfo(vm.action.token_id, vm.action.nft_id).then((nft) => {
-              vm.sell_nft_metadata = JSON.parse(nft.metadata);
+              vm.sell_nft_metadata = JSON.parse(nft[0].metadata);
               UIkit.modal("#modal-create-nft-sell-order-confirm").show();
             });
           } else {
@@ -2515,5 +2565,82 @@ body {
   background-color: #1e87f0;
   color: #fff;
   border-radius: 3px;
+}
+
+.uk-switch {
+  position: relative;
+  display: inline-block;
+  height: 34px;
+  width: 60px;
+}
+
+/* Hide default HTML checkbox */
+.uk-switch input {
+  display:none;
+}
+/* Slider */
+.uk-switch-slider {
+  background-color: rgba(0,0,0,0.22);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  border-radius: 500px;
+  bottom: 0;
+  cursor: pointer;
+  transition-property: background-color;
+  transition-duration: .2s;
+  box-shadow: inset 0 0 2px rgba(0,0,0,0.07);
+}
+/* Switch pointer */
+.uk-switch-slider:before {
+  content: '';
+  background-color: #fff;
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  left: 2px;
+  bottom: 2px;
+  border-radius: 50%;
+  transition-property: transform, box-shadow;
+  transition-duration: .2s;
+}
+/* Slider active color */
+input:checked + .uk-switch-slider {
+  background-color: #39f !important;
+}
+/* Pointer active animation */
+input:checked + .uk-switch-slider:before {
+  transform: translateX(26px);
+}
+
+/* Modifiers */
+.uk-switch-slider.uk-switch-on-off {
+  background-color: #f0506e;
+}
+input:checked + .uk-switch-slider.uk-switch-on-off {
+  background-color: #32d296 !important;
+}
+
+/* Style Modifier */
+.uk-switch-slider.uk-switch-big:before {
+  transform: scale(1.2);
+  box-shadow: 0 0 6px rgba(0,0,0,0.22);
+}
+.uk-switch-slider.uk-switch-small:before {
+  box-shadow: 0 0 6px rgba(0,0,0,0.22);
+}
+input:checked + .uk-switch-slider.uk-switch-big:before {
+  transform: translateX(26px) scale(1.2);
+}
+
+/* Inverse Modifier - affects only default */
+.uk-light .uk-switch-slider:not(.uk-switch-on-off) {
+  background-color: rgba(255,255,255,0.22);
+}
+.uk-subnav-pill-o > .uk-active > a {
+    background-color: #640ac4 !important;
+    color: #fff;
+    border-radius: 3px;
 }
 </style>

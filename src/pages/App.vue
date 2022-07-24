@@ -1024,7 +1024,7 @@
                 <div>
                   <div v-for="(item2,index) in item.confirmed"
                        class="uk-card uk-card-default uk-grid-collapse uk-child-width-1-1@s uk-margin" uk-grid>
-                    <div class="uk-cover-container">
+                    <div class="uk-cover-container" v-if="parseJSON(item2).attributes.content_type">
                       <img v-if="parseJSON(item2).attributes.content_type.split('/')[0]=='image'"
                            onerror="this.style.display='none'" uk-cover :src="ipfs_to_url(parseJSON(item2).image)">
                       <canvas v-if="parseJSON(item2).attributes.content_type.split('/')[0]=='image'" width="400"
@@ -1033,9 +1033,9 @@
                     <div class="uk-card-body" style="margin-left:10px;">
                       <div class="uk-card-title">
                         <small>
-                          <i v-if="parseJSON(item2).attributes.content_type.split('/')[0]=='audio'"
+                          <i v-if="parseJSON(item2).attributes.content_type&&parseJSON(item2).attributes.content_type.split('/')[0]=='audio'"
                              class="fa-solid fa-music"></i>
-                          <i v-if="parseJSON(item2).attributes.content_type.split('/')[0]=='video'"
+                          <i v-if="parseJSON(item2).attributes.content_type&&parseJSON(item2).attributes.content_type.split('/')[0]=='video'"
                              class="fa-solid fa-circle-play"></i>
                           &nbsp;{{ parseJSON(item2).name }} (#{{ index }})
                         </small>
@@ -1053,7 +1053,7 @@
                         </small>
                       </div>
                       <div style="margin-top:5px;"
-                           v-if="parseJSON(item2).attributes.content_type.split('/')[0]=='audio'">
+                           v-if="parseJSON(item2).attributes.content_type&&parseJSON(item2).attributes.content_type.split('/')[0]=='audio'">
                         <audio controls style="width:100%">
                           <source :src="parseJSON(item2).image" type="audio/ogg">
                           <source :src="parseJSON(item2).image" type="audio/mpeg">
@@ -1061,7 +1061,7 @@
                         </audio>
                       </div>
                       <div style="margin-top:5px;"
-                           v-if="parseJSON(item2).attributes.content_type.split('/')[0]=='video'">
+                           v-if="parseJSON(item2).attributes.content_type&&parseJSON(item2).attributes.content_type.split('/')[0]=='video'">
                         <video onplay="this.webkitEnterFullscreen();" controls playsinline style="width:100%">
                           <source :src="parseJSON(item2).image" type="video/mp4">
                           <source :src="parseJSON(item2).image" type="video/ogg">
@@ -1106,7 +1106,7 @@ export default {
             code: "testnet"
           }
         ],
-      version:"1.0.2",
+      version:"1.0.3",
       walletType: "next",
       network: "testnet",
       wallet_name: "",
@@ -1667,6 +1667,7 @@ export default {
         this.password_again = undefined;
         this.walletUnlocked = false;
         this.isNewWallet = false;
+        this.wallet_name=undefined;
         this.listWallets();
         this.changePage("select-wallet");
       },
@@ -2041,7 +2042,7 @@ export default {
         console.log(this.action);
         let vm = this;
         vm.process_message = "Creating NFT collection...";
-        setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
+        UIkit.modal("#modal-please-wait").show();
         wallet.CreateNft(this.action.name, this.action.scheme, this.action.max_supply * 1e8, this.password).then(function(tx) {
           UIkit.modal("#modal-please-wait").hide();
           if (tx.tx) {
@@ -2050,12 +2051,13 @@ export default {
                 UIkit.modal("#modal-please-wait").show();
                 wallet.SendTransaction(tx.tx).then(function(result) {
                   console.log(result);
-                  if (result.error) {
-                    UIkit.modal.alert(result.error);
+                  if (result.error)
+                  {
                     chrome.runtime.sendMessage({ cmd: "reject_create_nft_collection" }, function(response) {
                       console.log(response);
                     });
                     UIkit.modal("#modal-please-wait").hide();
+                    UIkit.modal.alert(result.error);
                   } else {
                     UIkit.modal("#modal-please-wait").hide();
                     UIkit.modal.alert("NFT collection has been successfully created.");
@@ -2066,11 +2068,11 @@ export default {
                 })
                   .catch((e) => {
                     UIkit.modal("#modal-please-wait").hide();
+                    UIkit.modal.alert(e.message);
                     console.log(e);
                     chrome.runtime.sendMessage({ cmd: "reject_create_nft_collection" }, function(response) {
                       console.log(response);
                     });
-                    UIkit.modal.alert(e.message);
                   });
               }
               , function() {
@@ -2083,9 +2085,10 @@ export default {
           }
         })
           .catch((e) => {
-            UIkit.modal("#modal-please-wait").hide();
             console.log("Creat nft failed");
             console.log(e);
+            UIkit.modal("#modal-please-wait").hide();
+            UIkit.modal.alert(e.message);
             chrome.runtime.sendMessage({ cmd: "reject_create_nft_collection" }, function(response) {
               console.log(response);
             });

@@ -346,7 +346,20 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse)
         function: m_reject_mint_private_token,
         args:[]
       });
-    }    
+    }
+    else if (message.cmd=="reject_wrong_network")
+    {
+      console.log("Rejecting wrong network");
+      console.log("Sending to tab :" + tabId);
+      sendResponse({cmd: message.cmd,result:true});
+      chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        world:"MAIN",
+        function: m_reject_wrong_network,
+        args:[message.network]
+      });
+    }
     else
     {
         console.log("Processing external message");
@@ -488,4 +501,9 @@ function m_accept_mint_private_token(tx)
 function m_reject_mint_private_token()
 {
   reject_mint_private_token();
+}
+
+function m_reject_wrong_network(network)
+{
+  reject_wrong_network(network);
 }

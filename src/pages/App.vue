@@ -29,6 +29,7 @@
             <div>
               <ul class="uk-nav uk-dropdown-nav">
                 <li class="uk-nav-header">Wallet</li>
+                <li><a href="#" v-on:click="changePage('address_book')">Address Book</a></li>
                 <li><a href="#" v-on:click="closeWallet()">Close Wallet</a></li>
                 <li><a href="#" v-on:click="changePage('backup-wallet')">Backup Wallet</a></li>
                 <li><a href="#" v-on:click="changePage('remove-wallet')">Remove Wallet</a></li>
@@ -46,6 +47,7 @@
         </span>
         <span v-if="progress==100" style="float:right;margin-left:5px;margin-bottom: 0px !important;"><small><i class="fa-solid fa-hammer"></i>&nbsp;{{ height }}</small></span>
         <span v-if="progress==100" style="float:right;margin-left:5px;margin-bottom: 0px !important;"><small><i class="fa-solid fa-bolt"></i>&nbsp;{{ current_node }}</small></span>
+        <span v-if="progress==100" style="float:right;margin-left:5px;margin-bottom: 0px !important;"><small><i class="fa-solid fa-diagram-project"></i>&nbsp;{{ network }}</small></span>
       </div>
     </div>
     <div class="uk-container" v-if="page=='verify-mnemonics'" style="margin-top:15px;">
@@ -417,12 +419,11 @@
       </div>
       <fieldset class="uk-fieldset uk-margin-small">
         <div class="uk-margin">
-          <input class="uk-input" placeholder="Password" type="password" v-model="password"></input>
+          <input class="uk-input" placeholder="Password" type="password" v-model="password" v-on:keyup.enter="unlockWallet()" ></input>
         </div>
         <div class="uk-margin">
           <button :disabled="!password" class="uk-button uk-button-secondary uk-width-1-1" v-on:click="unlockWallet()">
-            <i
-              class="fa-solid fa-unlock"></i>&nbsp;Unlock Wallet
+            <i class="fa-solid fa-unlock"></i>&nbsp;Unlock Wallet
           </button>
         </div>
         <div class="uk-margin">
@@ -450,6 +451,40 @@
           </li>
         </ul>
         <p v-else>No site was found that has been granted access to your wallet.</p>
+      </div>
+      <div v-if="page=='address_book'" class="uk-card uk-card-default uk-card-body uk-width-1-2@m">
+        <div class="uk-margin">
+          <h3 class="uk-card-title"><i class="fa-solid fa-address-book"></i>&nbsp;Address Book<button title="Clear Address Book" class="uk-button uk-button-text uk-align-right" type="button" v-on:click="clearAddressBook()"><i class="fa-solid fa-broom"></i></button></h3>
+        </div>
+        <div class="uk-margin">
+          <form>
+            <fieldset class="uk-fieldset">
+              <div class="uk-margin">
+                <input class="uk-input" placeholder="Name" type="text" v-model="book_name"></input>
+              </div>
+              <div class="uk-margin">
+                <input class="uk-input" placeholder="Address" type="text" v-model="book_address"></input>
+              </div>
+              <div class="uk-margin">
+                <button :disabled="!book_name&&!book_address" class="uk-button uk-button-primary uk-modal-close" type="button" v-on:click="addAddress()">
+                  <i class="fa-solid fa-plus"></i> Add
+                </button>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+        <ul class="uk-list uk-list-divider" v-if="addressBook.length>0">
+          <li v-for="(address,index) in addressBook">
+            <div>
+              <i class="fa-solid fa-user"></i>&nbsp;{{ address.name }}
+              <button class="uk-button uk-button-text uk-align-right" title="Delete Entry" v-on:click="removeAddress(index)"><i class="fas fa-trash"></i></button>
+            </div>
+            <div class="address" style="word-break:break-word;clear:both">
+              {{ address.address }}
+            </div>
+          </li>
+        </ul>
+        <p v-else>No address found.</p>
       </div>
       <div id="modal-please-wait" uk-modal="esc-close:false;bg-close:false">
         <div class="uk-modal-dialog uk-modal-body">
@@ -788,7 +823,9 @@
             <li>
               <center>
                 <div v-html="qrcode_nav"></div>
-                <p>{{ publicAddress }}</p>
+                <div class="address" style="word-break:break-word;">
+                  <p>{{ publicAddress }}</p>
+                </div>
                 <button class="uk-button uk-button-default" v-on:click="doCopy(publicAddress)"><i
                   class="fa-solid fa-copy"></i>&nbsp;Copy
                 </button>
@@ -888,7 +925,18 @@
               <form>
                 <fieldset class="uk-fieldset">
                   <div class="uk-margin">
+                    <button :disabled="addressBook.length==0" class="uk-button uk-button-link uk-align-right" type="button" :title="(addressBook.length>0?'Address Book':'Address Book Empty')"><i class="fa-solid fa-address-book"></i></button>
+                    <div uk-dropdown="pos: bottom-center;mode:hover;" v-if="addressBook.length>0">
+                        <ul class="uk-nav uk-dropdown-nav">
+                            <li v-for="(a,index) in addressBook">
+                              <a v-on:click="address=a.address" class="uk-dropdown-close"><i class="fa-solid fa-user"></i>&nbsp;{{a.name}}</a>
+                            </li>
+                        </ul>
+                    </div>
                     <input class="uk-input" placeholder="Address" type="text" v-model="address"></input>
+                    <span class="uk-badge" v-if="address&&!isAddressValid(address)">Invalid address</span>
+                    <span class="uk-badge" v-if="isAddressValid(address)&&isAddressValid(address).type=='pubkeyhash'">Public</span>
+                    <span class="uk-badge" v-if="isAddressValid(address)&&isAddressValid(address).type=='xnav'">Private</span>
                   </div>
                   <div class="uk-margin">
                     <input class="uk-input" placeholder="Amount" type="number" v-model="amount"></input>
@@ -939,6 +987,14 @@
               <form>
                 <fieldset class="uk-fieldset">
                   <div class="uk-margin">
+                    <button :disabled="addressBook.length==0" class="uk-button uk-button-link uk-align-right" type="button" :title="(addressBook.length>0?'Address Book':'Address Book Empty')"><i class="fa-solid fa-address-book"></i></button>
+                    <div uk-dropdown="pos: bottom-center;mode:hover;" v-if="addressBook.length>0">
+                        <ul class="uk-nav uk-dropdown-nav">
+                            <li v-for="(a,index) in addressBook">
+                              <a v-on:click="token_xnav_address=a.address" class="uk-dropdown-close"><i class="fa-solid fa-user"></i>&nbsp;{{a.name}}</a>
+                            </li>
+                        </ul>
+                    </div>
                     <select class="uk-select" float style="width: 100%" v-model="token_id" v-if="balance">
                       <option v-bind:value="index" v-for="(item,index) in balance.tokens">{{ item.name }} -
                         {{ formatBalance(item.confirmed) }} {{ item.code }}
@@ -967,6 +1023,14 @@
               <form>
                 <fieldset class="uk-fieldset">
                   <div class="uk-margin">
+                    <button :disabled="addressBook.length==0" class="uk-button uk-button-link uk-align-right" type="button" :title="(addressBook.length>0?'Address Book':'Address Book Empty')"><i class="fa-solid fa-address-book"></i></button>
+                    <div uk-dropdown="pos: bottom-center;mode:hover;" v-if="addressBook.length>0">
+                        <ul class="uk-nav uk-dropdown-nav">
+                            <li v-for="(a,index) in addressBook">
+                              <a v-on:click="nft_xnav_address=a.address" class="uk-dropdown-close"><i class="fa-solid fa-user"></i>&nbsp;{{a.name}}</a>
+                            </li>
+                        </ul>
+                    </div>
                     <select class="uk-select" float style="width: 100%" v-model="nft_token_id" v-if="balance">
                       <option v-bind:value="index" v-for="(item,index) in balance.nfts">{{ item.name }}</option>
                     </select>
@@ -1091,7 +1155,11 @@ import sb from "satoshi-bitcoin";
 import moment from "moment";
 import bitcore from "@aguycalled/bitcore-lib";
 import Mnemonic from "@aguycalled/bitcore-mnemonic";
-
+import crypto from "crypto";
+import buffer from "buffer";
+const IV_LENGTH = 16; // For AES, this is always 16
+var ENCRYPTION_KEY;
+var wallet;
 export default {
   data() {
     return {
@@ -1112,6 +1180,7 @@ export default {
       wallet_name: "",
       password: "",
       password_again: "",
+      spendingPassword:undefined,
       v_password: undefined,
       mnemonics: undefined,
       busy: false,
@@ -1122,8 +1191,9 @@ export default {
       is_action_processed: false,
       sender: {},
       trustedSites: [],
+      addressBook:[],
       status: "",
-      page: "welcome",
+      page: "",
       pages: [],
       pageindex: 0,
       publicAddress: "",
@@ -1172,7 +1242,9 @@ export default {
       sell_nft_metadata: {},
       process_message: "",
       isImportActive: false,
-      db_load_failed: false
+      db_load_failed: false,
+      book_name:'',
+      book_address:'',
     };
   },
   beforeCreate() {
@@ -1192,11 +1264,24 @@ export default {
         return this.history.slice(this.indexStart, this.indexEnd);
       }
     },
-  created: function() {
+  created: function()
+  {
+    //chrome.storage.local.clear();
+    let vm=this;
+    try {
+      chrome.storage.local.get({ addressBook: [] }, function(result)
+      {
+        vm.addressBook = result.addressBook;
+      });
+    }
+    catch (e)
+    {
+    }
   },
   mounted: function() {
     let vm = this;
     vm.njs = njs;
+    window.bitcore=bitcore;
     console.log("navcoin-js build " + njs.version);
     var views = [];
     try {
@@ -1216,6 +1301,33 @@ export default {
         vm.is_action_processed = false;
         vm.action = response.message;
         vm.sender = response.sender;
+        chrome.storage.session.get(['last_active_wallet','password'], function(result)
+        {
+          if (result.last_active_wallet&&result.password)
+          {
+            console.log(result.last_active_wallet);
+            console.log(result.password);
+            let arr = result.last_active_wallet.split("_");
+            {
+              console.log("Latest used wallet -> " + result.last_active_wallet);
+              console.log("Latest used network -> " + arr[2]);
+              console.log("dApp network -> " + vm.action.network);
+              if (arr[2]==vm.action.network)
+              {
+                console.log("Wallet & dAPP network are same, unlocking wallet...");
+                console.log("Active wallet -> " + vm.active_wallet_name);
+                vm.active_wallet_name=result.last_active_wallet;
+                vm.active_wallet_already_exist=true;
+                vm.password=result.password;
+                vm.unlockWallet();
+              }
+              else
+              {
+                console.log("Wallet & dAPP network are not same...");
+              }
+            }
+          }
+        }); 
         if (views.length < 1) {
           vm.listWallets();
         }
@@ -1225,7 +1337,8 @@ export default {
         console.log(sender);
         console.log(msg.cmd);
         console.log(msg.message);
-        if (msg.cmd == "update_action") {
+        if (msg.cmd == "update_action")
+        {
           vm.is_action_processed = false;
           vm.action = msg.message;
           vm.sender = msg.sender;
@@ -1241,6 +1354,72 @@ export default {
   },
   methods:
     {
+      encrypt (text)
+      {
+          let iv = crypto.randomBytes(IV_LENGTH);
+          let cipher = crypto.createCipheriv('aes-256-cbc', new Buffer(ENCRYPTION_KEY), iv);
+          let encrypted = cipher.update(text);
+          encrypted = Buffer.concat([encrypted, cipher.final()]);
+          return iv.toString('hex') + ':' + encrypted.toString('hex');
+      },
+      decrypt (text)
+      {
+          try
+          {
+              let textParts=text.split(':');
+              let iv=new buffer.Buffer(textParts.shift(), 'hex');
+              let encryptedText=new buffer.Buffer(textParts.join(':'), 'hex');
+              let decipher=crypto.createDecipheriv('aes-256-cbc', new buffer.Buffer(ENCRYPTION_KEY), iv);
+              let decrypted=decipher.update(encryptedText);
+              decrypted=buffer.Buffer.concat([decrypted, decipher.final()]);
+              return decrypted.toString();
+          }
+          catch (e)
+          {
+              return false;
+          }
+      },
+      randomString(length, chars)
+      {
+        if (!chars)
+        {
+          throw new Error('Argument \'chars\' is undefined');
+        }
+
+        const charsLength = chars.length;
+        if (charsLength > 256)
+        {
+        throw new Error('Argument \'chars\' should not have more than 256 characters'
+          + ', otherwise unpredictability will be broken');
+        }
+
+        const randomBytes = crypto.randomBytes(length);
+        let result = new Array(length);
+
+        let cursor = 0;
+        for (let i = 0; i < length; i++)
+        {
+          cursor += randomBytes[i];
+          result[i] = chars[cursor % charsLength];
+        }
+        return result.join('');
+      },
+      generateRandomPassword(length)
+      {
+        return this.randomString(length,'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
+      },
+      isAddressValid(address)
+      {
+        if (!address) return;
+        try
+        {
+          return new bitcore.Address(address,(address.length==34?this.network:"mainnet"));
+        }
+        catch
+        {
+          return false;
+        }
+      },
       setNetwork(network) {
         console.log("Changing network to -> " + network.code);
         this.network = network.code;
@@ -1319,14 +1498,15 @@ export default {
         if (vm.isPrivateToPublic) {
           try {
             UIkit.modal("#modal-please-wait").show();
-            wallet.xNavCreateTransaction(publicAddress, amount, "", vm.password, vm.isSwapIncludesTxFee).then(function(tx) {
+            wallet.xNavCreateTransaction(publicAddress, amount, "", vm.spendingPassword, vm.isSwapIncludesTxFee).then(function(tx) {
               let msg = "<h3>Swap</h3><p>Amount to swap : " + sb.toBitcoin((vm.isSwapIncludesTxFee ? amount - tx.fee : amount)) + " xNAV</p><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Total amount : " + sb.toBitcoin((vm.isSwapIncludesTxFee ? amount : amount + tx.fee)) + " xNAV</p>" + "<p>Do you confirm swap?</p>";
               UIkit.modal.confirm(msg).then(function() {
+                  UIkit.modal("#modal-please-wait").show();
                   wallet.SendTransaction(tx.tx).then(function(result) {
                     if (result.error) {
                       UIkit.modal.alert(result.error);
                     } else {
-                      UIkit.modal.alert("Success");
+                      UIkit.modal.alert("Asset swap completed.");
                     }
                   })
                     .catch((e) => {
@@ -1346,14 +1526,15 @@ export default {
         } else {
           try {
             UIkit.modal("#modal-please-wait").show();
-            wallet.NavCreateTransaction(privateAddress, amount, "", vm.password, vm.isSwapIncludesTxFee).then(function(tx) {
+            wallet.NavCreateTransaction(privateAddress, amount, "", vm.spendingPassword, vm.isSwapIncludesTxFee).then(function(tx) {
               let msg = "<h3>Swap</h3><p>Amount to swap : " + sb.toBitcoin((vm.isSwapIncludesTxFee ? amount - tx.fee : amount)) + " NAV</p><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " NAV</p><p>Total amount : " + sb.toBitcoin((vm.isSwapIncludesTxFee ? amount : amount + tx.fee)) + " NAV</p>" + "<p>Do you confirm swap?</p>";
               UIkit.modal.confirm(msg).then(function() {
+                  UIkit.modal("#modal-please-wait").show();
                   wallet.SendTransaction(tx.tx).then(function(result) {
                     if (result.error) {
                       UIkit.modal.alert(result.error);
                     } else {
-                      UIkit.modal.alert("Success");
+                      UIkit.modal.alert("Asset swap completed.");
                     }
                   })
                     .catch((e) => {
@@ -1414,7 +1595,7 @@ export default {
         let vm = this;
         try {
           console.log("Signing message with -> " + vm.publicAddress);
-          wallet.NavGetPrivateKeys(vm.password, vm.publicAddress).then(function(e) {
+          wallet.NavGetPrivateKeys(vm.spendingPassword, vm.publicAddress).then(function(e) {
             console.log(e);
             vm.signedMessage = wallet.Sign(bitcore.PrivateKey.fromWIF(e[0].privateKey), vm.message);
           });
@@ -1432,10 +1613,24 @@ export default {
       },
       removeWallet() {
         let vm = this;
-        if (this.v_password == this.password) {
-          wallet.Disconnect();
-          wallet.CloseDb();
-          njs.wallet.WalletFile.RemoveWallet(this.active_wallet_name).then(() => {
+        if (this.v_password == this.password)
+        {
+            wallet.Disconnect();
+            wallet.CloseDb();
+            chrome.storage.session.clear();
+            this.mnemonics = undefined;
+            this.balance = undefined;
+            this.privateTokens = [];
+            this.password = undefined;
+            this.password_again = undefined;
+            this.spendingPassword = undefined;
+            this.walletUnlocked = false;
+            this.walletLoginSuccess=false;
+            this.isNewWallet = false;
+            this.wallet_name=undefined;
+            this.active_wallet_name=undefined;
+            this.wallet=undefined;
+            njs.wallet.WalletFile.RemoveWallet(this.active_wallet_name).then(() => {
             console.log("Wallet " + this.active_wallet_name + " removed.");
             UIkit.notification("<i class='fas fa-check'></i>&nbsp;Wallet removed", { status: "success" });
             njs.wallet.WalletFile.ListWallets().then((wallets) => {
@@ -1457,20 +1652,26 @@ export default {
       },
       send() {
         let vm = this;
+        if (!vm.isAddressValid(vm.address))
+        {
+          UIkit.modal.alert("Invalid receiver address, please check it...");
+          return;
+        }
         let amount = parseFloat((vm.amount * 1e8).toFixed(0));
         if (vm.isPrivateTransaction) {
           try {
             UIkit.modal("#modal-please-wait").show();
-            wallet.xNavCreateTransaction(vm.address, amount, "", vm.password, vm.isIncludesTxFee).then(function(tx) {
+            wallet.xNavCreateTransaction(vm.address, amount, "", vm.spendingPassword, vm.isIncludesTxFee).then(function(tx) {
               let msg = "<p>Amount to send : " + sb.toBitcoin((vm.isIncludesTxFee ? amount - tx.fee : amount)) + " xNAV</p><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Total amount : " + sb.toBitcoin((vm.isIncludesTxFee ? amount : amount + tx.fee)) + " xNAV</p>" + "<p>Do you confirm transaction?</p>";
               UIkit.modal.confirm(msg).then(function() {
+                UIkit.modal("#modal-please-wait").show();
                   wallet.SendTransaction(tx.tx).then(function(result) {
                     if (result.error) {
                       UIkit.modal.alert(result.error);
                     } else {
                       vm.address = null;
                       vm.amount = null;
-                      UIkit.modal.alert("Success");
+                      UIkit.modal.alert("Transaction completed.");
                     }
                   })
                     .catch((e) => {
@@ -1490,7 +1691,7 @@ export default {
         } else {
           try {
             UIkit.modal("#modal-please-wait").show();
-            wallet.NavCreateTransaction(vm.address, amount, "", vm.password, vm.isIncludesTxFee).then(function(tx) {
+            wallet.NavCreateTransaction(vm.address, amount, "", vm.spendingPassword, vm.isIncludesTxFee).then(function(tx) {
               let msg = "<p>Amount to send : " + sb.toBitcoin((vm.isIncludesTxFee ? amount - tx.fee : amount)) + " NAV</p><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " NAV</p><p>Total amount : " + sb.toBitcoin((vm.isIncludesTxFee ? amount : amount + tx.fee)) + " NAV</p>" + "<p>Do you confirm transaction?</p>";
               UIkit.modal.confirm(msg).then(function() {
                   UIkit.modal("#modal-please-wait").show();
@@ -1500,7 +1701,7 @@ export default {
                     } else {
                       vm.address = null;
                       vm.amount = null;
-                      UIkit.modal.alert("Success");
+                      UIkit.modal.alert("Transaction completed.");
                     }
                   })
                     .catch((e) => {
@@ -1524,7 +1725,7 @@ export default {
         let token_amount = parseFloat((vm.token_amount * 1e8).toFixed(0));
         try {
           UIkit.modal("#modal-please-wait").show();
-          wallet.tokenCreateTransaction(vm.token_xnav_address, token_amount, vm.token_memo, vm.password, vm.token_id).then(function(tx) {
+          wallet.tokenCreateTransaction(vm.token_xnav_address, token_amount, vm.token_memo, vm.spendingPassword, vm.token_id).then(function(tx) {
             let msg = "<p>Amount to send : " + sb.toBitcoin(token_amount) + " " + vm.balance.tokens[vm.token_id].code + "</p><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Do you confirm transaction?</p>";
             UIkit.modal.confirm(msg).then(function() {
                 UIkit.modal("#modal-please-wait").show();
@@ -1535,7 +1736,7 @@ export default {
                     vm.token_address = null;
                     vm.token_amount = null;
                     vm.token_memo = null;
-                    UIkit.modal.alert("Success");
+                    UIkit.modal.alert("Private Token transaction completed.");
                   }
                 })
                   .catch((e) => {
@@ -1558,7 +1759,7 @@ export default {
         let token_amount = parseFloat((vm.token_amount * 1e8).toFixed(0));
         try {
           UIkit.modal("#modal-please-wait").show();
-          wallet.tokenCreateTransaction(vm.nft_xnav_address, 1, vm.nft_memo, vm.password, vm.nft_token_id, vm.nft_id).then(function(tx) {
+          wallet.tokenCreateTransaction(vm.nft_xnav_address, 1, vm.nft_memo, vm.spendingPassword, vm.nft_token_id, vm.nft_id).then(function(tx) {
             let msg = "<p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Do you confirm transaction?</p>";
             UIkit.modal.confirm(msg).then(function() {
                 UIkit.modal("#modal-please-wait").show();
@@ -1568,7 +1769,7 @@ export default {
                   } else {
                     vm.token_nft_address = null;
                     vm.token_memo = null;
-                    UIkit.modal.alert("Success");
+                    UIkit.modal.alert("Private NFT transaction completed.");
                   }
                 })
                   .catch((e) => {
@@ -1606,7 +1807,7 @@ export default {
           UIkit.modal.alert("Please specify a password");
         } else if (this.password.length < 6) {
           UIkit.modal.alert("Your password must be at least 6 characters long.");
-        } else if (this.password != this.password_again) {
+        } else if (this.password!=this.password_again) {
           UIkit.modal.alert("The passwords you specify must be the same.");
         } else {
           var valid = Mnemonic.isValid(this.mnemonics);
@@ -1649,7 +1850,8 @@ export default {
         this.active_wallet_already_exist = true;
         console.log("Active wallet -> " + this.active_wallet_name);
       },
-      removeSite(index) {
+      removeSite(index)
+      {
         this.trustedSites.splice(index, 1);
         try {
           chrome.storage.local.set({ trustedSites: this.trustedSites }, function() {
@@ -1657,17 +1859,81 @@ export default {
         } catch (e) {
         }
       },
+      removeAddress(index)
+      {
+        let vm=this;
+        UIkit.modal.confirm('Are you sure you want to delete? This action cannot be undone.').then(function()
+        {
+            try
+            {
+              vm.addressBook.splice(index, 1);
+              chrome.storage.local.set({ addressBook: vm.addressBook }, function()
+              {
+                UIkit.notification("<i class='fas fa-check'></i>&nbsp;Entry deleted.", { status: "success" });
+              });
+            }
+            catch (e)
+            {
+            }
+        },
+        function ()
+        {
+            console.log('Rejected.')
+        });
+      },
+      clearAddressBook()
+      {
+        let vm=this;
+        UIkit.modal.confirm('Are you sure you want to permanently clear the entries in the address book? This action cannot be undone.').then(function()
+        {
+            chrome.storage.local.set({ addressBook: [] }, function()
+            {
+              vm.addressBook=[];
+              UIkit.notification("<i class='fas fa-check'></i>&nbsp;Address book cleared.", { status: "success" });
+            });
+        },
+        function ()
+        {
+            console.log('Rejected.')
+        });
+      },
+      addAddress()
+      {
+          let vm=this;
+          chrome.storage.local.get({ addressBook: [] }, function(result) {
+            var addressBook = result.addressBook;
+            if (!addressBook.includes(vm.book_address))
+            {
+              addressBook.push({name:vm.book_name,address:vm.book_address});
+              chrome.storage.local.set({ addressBook: addressBook }, function() {
+                chrome.storage.local.get("addressBook", function(result)
+                {
+                  vm.addressBook=result.addressBook;
+                  console.log(result.addressBook);
+                  this.book_name="";
+                  this.book_address="";
+                  UIkit.notification("<i class='fas fa-check'></i>&nbsp;Address successfully added", { status: "success" });
+                });
+              });
+            }
+          });
+       },
       closeWallet: function() {
         wallet.Disconnect();
         wallet.CloseDb();
+        chrome.storage.session.clear();
         this.mnemonics = undefined;
         this.balance = undefined;
         this.privateTokens = [];
         this.password = undefined;
         this.password_again = undefined;
+        this.spendingPassword = undefined;
         this.walletUnlocked = false;
+        this.walletLoginSuccess=false;
         this.isNewWallet = false;
         this.wallet_name=undefined;
+        this.active_wallet_name=undefined;
+        this.wallet=undefined;
         this.listWallets();
         this.changePage("select-wallet");
       },
@@ -1687,18 +1953,34 @@ export default {
             });
           } catch (e) {
           }
-        } else if (this.page == "backup-wallet") {
+        }
+        if (this.page == "address_book") {
+          try {
+            chrome.storage.local.get({ addressBook: [] }, function(result) {
+              vm.addressBook = result.addressBook;
+            });
+          } catch (e) {
+          }
+        } 
+        else if (this.page == "backup-wallet") {
           vm.mnemonics = undefined;
           UIkit.modal.prompt("Wallet Password:", "").then(function(password) {
             if (!password) return;
-            wallet.db.GetMasterKey("mnemonic", password)
-              .then(function(e) {
-                if (e) {
-                  vm.mnemonics = e;
-                } else {
-                  UIkit.modal.alert("Wrong password");
-                }
-              });
+            if (password!=vm.password)
+            {
+              UIkit.modal.alert("Wrong password");
+            }
+            else
+            {
+              wallet.db.GetMasterKey("mnemonic", vm.spendingPassword)
+                .then(function(e) {
+                  if (e) {
+                    vm.mnemonics = e;
+                  } else {
+                    UIkit.modal.alert("Wrong password");
+                  }
+                });
+              }
           });
         }
       },
@@ -1755,7 +2037,7 @@ export default {
         console.log(this.action.order);
         vm.process_message = "Accepting order...";
         UIkit.modal("#modal-please-wait").show();
-        wallet.AcceptOrder(vm.action.order, vm.password).then(function(tx) {
+        wallet.AcceptOrder(vm.action.order, vm.spendingPassword).then(function(tx) {
           vm.process_message = "Submitting transaction...";
           wallet.SendTransaction(tx.tx).then(function(result) {
             if (result.error) {
@@ -1789,7 +2071,7 @@ export default {
         let vm = this;
         vm.process_message = "Creating private token...";
         setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
-        wallet.CreateToken(this.action.name, this.action.symbol, this.action.max_supply * 1e8, this.password).then(function(response) {
+        wallet.CreateToken(this.action.name, this.action.symbol, this.action.max_supply * 1e8, this.spendingPassword).then(function(response) {
           console.log(response);
           if (response.tx) {
             console.log("Submitting transaction...");
@@ -1835,7 +2117,7 @@ export default {
         let vm = this;
         vm.process_message = "Minting private token...";
         setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
-        wallet.MintToken(this.action.token_id, this.privateAddress, this.action.amount * 1e8, this.password).then(function(response) {
+        wallet.MintToken(this.action.token_id, this.privateAddress, this.action.amount * 1e8, this.spendingPassword).then(function(response) {
           console.log(response);
           if (response.tx) {
             console.log("Submitting transaction...");
@@ -1877,7 +2159,7 @@ export default {
         let vm = this;
         try {
           console.log("Signing message with -> " + vm.publicAddress);
-          wallet.NavGetPrivateKeys(vm.password, vm.publicAddress).then(function(e) {
+          wallet.NavGetPrivateKeys(vm.spendingPassword, vm.publicAddress).then(function(e) {
             console.log(e);
             let signed_message = wallet.Sign(bitcore.PrivateKey.fromWIF(e[0].privateKey), vm.message);
             chrome.runtime.sendMessage({
@@ -1900,10 +2182,11 @@ export default {
         vm.process_message = "Creating transaction...";
         setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
         try {
-          wallet.xNavCreateTransaction(this.action.address, this.action.amount, "", vm.password, vm.isIncludesTxFee).then(function(tx) {
+          wallet.xNavCreateTransaction(this.action.address, this.action.amount, "", vm.spendingPassword, vm.isIncludesTxFee).then(function(tx) {
             if (tx.tx) {
               let msg = "<h3>Create Transaction</h3><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Do you confirm transaction?</p>";
-              UIkit.modal.confirm(msg).then(function() {
+              UIkit.modal.confirm(msg).then(function()
+              {
                   UIkit.modal("#modal-please-wait").show();
                   wallet.SendTransaction(tx.tx).then(function(result) {
                     console.log(result);
@@ -1955,7 +2238,7 @@ export default {
         vm.process_message = "Cancelling NFT Sell Order...";
         setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
         try {
-          wallet.tokenCreateTransaction(vm.privateAddress, 1, undefined, vm.password, vm.action.token_id, vm.action.nft_id).then(function(tx) {
+          wallet.tokenCreateTransaction(vm.privateAddress, 1, undefined, vm.spendingPassword, vm.action.token_id, vm.action.nft_id).then(function(tx) {
             if (tx.tx) {
               let msg = "<h3>Cancel NFT Sell Order</h3><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Do you confirm transaction?</p>";
               UIkit.modal.confirm(msg).then(function() {
@@ -2043,7 +2326,7 @@ export default {
         let vm = this;
         vm.process_message = "Creating NFT collection...";
         UIkit.modal("#modal-please-wait").show();
-        wallet.CreateNft(this.action.name, this.action.scheme, this.action.max_supply * 1e8, this.password).then(function(tx) {
+        wallet.CreateNft(this.action.name, this.action.scheme, this.action.max_supply * 1e8, this.spendingPassword).then(function(tx) {
           UIkit.modal("#modal-please-wait").hide();
           if (tx.tx) {
             let msg = "<h3>Create NFT Collection</h3><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Do you confirm transaction?</p>";
@@ -2110,7 +2393,7 @@ export default {
         let vm = this;
         vm.process_message = "Minting NFT...";
         setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
-        wallet.MintNft(this.mint_nft_token_id, this.action.nft_id, this.privateAddress, this.action.scheme, this.password).then(function(tx) {
+        wallet.MintNft(this.mint_nft_token_id, this.action.nft_id, this.privateAddress, this.action.scheme, this.spendingPassword).then(function(tx) {
           if (tx.tx) {
             let msg = "<h3>Mint NFT</h3><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Do you confirm transaction?</p>";
             UIkit.modal.confirm(msg).then(function() {
@@ -2185,16 +2468,16 @@ export default {
         console.log(this.action.api_url);
         console.log(this.privateAddress);
         vm.process_message = "Submitting NFT Sell Order...";
-        setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
+        UIkit.modal("#modal-please-wait").show();
         let amount = parseFloat((vm.action.price * 1e8).toFixed(0));
         try {
           vm.process_message = "Creating NFT proof...";
           console.log("Creating NFT proof...");
-          wallet.CreateNftProof(vm.action.token_id, vm.action.nft_id, vm.password).then((p) => {
+          wallet.CreateNftProof(vm.action.token_id, vm.action.nft_id, vm.spendingPassword).then((p) => {
             let hex = Buffer.from(p.sig).toString("hex");
             let proof = { nftId: vm.action.nft_id, tokenId: vm.action.token_id, sig: Buffer.from(hex, "hex") };
             console.log(proof);
-            wallet.CreateSellNftOrder(vm.action.token_id, vm.action.nft_id, this.privateAddress, amount, vm.password).then(function(order) {
+            wallet.CreateSellNftOrder(vm.action.token_id, vm.action.nft_id, this.privateAddress, amount, vm.spendingPassword).then(function(order) {
               vm.process_message = "Creating NFT sell order";
               console.log(order);
               wallet.VerifyOrder(order).then((result) => {
@@ -2203,8 +2486,18 @@ export default {
               //console.log(JSON.stringify(order));
               //console.log(JSON.parse(JSON.stringify(order)));
               console.log("Verifying proof...");
-              wallet.VerifyNftProof(vm.action.token_id, parseInt(vm.action.price), proof).then((v) => {
+              console.log("Token : "+vm.action.token_id);
+              console.log("NFT ID : "+vm.action.nft_id);
+              wallet.VerifyNftProof(vm.action.token_id, vm.action.nft_id, proof)
+              .then((v) =>
+              {
+                console.log("NFT Proof successfully verified.");
                 console.log(v);
+              })
+              .catch(function(e)
+              {
+                console.log(e);
+                UIkit.modal.alert("<p>NFT Proof verification failed.</p><p>" + e.message + "</p>");
               });
               if (vm.action.return_order) {
                 vm.process_message = "Returning NFT sell order to origin...";
@@ -2246,19 +2539,20 @@ export default {
               }
             })
               .catch((e) => {
-                console.log("CreateSellNftOrder failed -> " + e.message);
+                console.log("CreateSellNftOrder failed (#1) -> " + e.message);
                 chrome.runtime.sendMessage({ cmd: "accept_create_nft_sell_order", result: false }, function(response) {
                 });
                 UIkit.modal.alert("<p>NFT sell order cannot created.</p><p>" + e.message + "</p>");
               });
           }).catch((e) => {
-            console.log("CreateSellNftOrder failed -> " + e.message);
+            console.log(e);
+            console.log("CreateSellNftOrder failed (#2) -> " + e.message);
             chrome.runtime.sendMessage({ cmd: "accept_create_nft_sell_order", result: false }, function(response) {
             });
             UIkit.modal.alert("<p>NFT sell order cannot created.</p><p>" + e.message + "</p>");
           });
         } catch (e) {
-          console.log("CreateSellNftOrder failed -> " + e.message);
+          console.log("CreateSellNftOrder failed (#3) -> " + e.message);
           chrome.runtime.sendMessage({ cmd: "accept_create_nft_sell_order", result: false }, function(response) {
           });
           UIkit.modal.alert("<p>NFT sell order cannot created.</p><p>" + e.message + "</p>");
@@ -2266,6 +2560,14 @@ export default {
       },
       processAction() {
         let vm = this;
+        if (vm.action.network!=vm.network)
+        {
+          chrome.runtime.sendMessage({ cmd: "reject_wrong_network", network:vm.network }, function(response)
+          {
+          });
+          UIkit.notification("<i class='fas fa-close'></i>&nbsp;Wallet is on different network ("+vm.network+"). Your dAPP currently is on "+vm.action.network+". Close wallet and re-open...", { status: "warning" });
+          return;
+        }
         if (vm.is_action_processed) return;
         vm.process_message="";
         console.log("Processing action...");
@@ -2296,7 +2598,8 @@ export default {
           UIkit.modal("#modal-create-nft-confirm").show();
         } else if (vm.action.method == "list_nft_collections") {
           console.log("listing nft collections...");
-          chrome.runtime.sendMessage({ cmd: "list_nft_collections", collections: vm.balance.nfts }, function(response) {
+          chrome.runtime.sendMessage({ cmd: "list_nft_collections", collections: vm.balance.nfts }, function(response)
+          {
           });
         } else if (vm.action.method == "create_nft_sell_order") {
           if (vm.isPrivateTokensSynced) {
@@ -2342,44 +2645,9 @@ export default {
           UIkit.modal("#modal-mint-private-token-confirm").show();
         }
       },
-      initWallet() {
-        let vm = this;
-        let wallet;
-        this.walletLoginSuccess = true;
-        this.page = "wallet-loading";
-        const walletFile = vm.active_wallet_name; // File name of the wallet database, persistence using dexie db backend only works on the browser
-        const password = vm.password; // Password used to encrypt and open the wallet database
-        const spendingPassword = vm.password; // Password used to send transactions
-        const zapwallettxes = false; // Should the wallet be cleared of its history?
-        const log = false; // Log to console
-        njs.wallet.Init().then(async () => {
-          if (vm.active_wallet_already_exist) {
-            console.log("Loading existing wallet : " + vm.active_wallet_name);
-            wallet = new njs.wallet.WalletFile(
-              {
-                file: vm.active_wallet_name,
-                zapwallettxes: zapwallettxes,
-                password: password,
-                log: log
-              });
-          } else {
-            console.log("Creating and loading new wallet : " + vm.active_wallet_name + "(" + vm.walletType + ")" + "(" + vm.network + ")");
-            console.log("Password : " + password);
-            wallet = new njs.wallet.WalletFile(
-              {
-                file: vm.active_wallet_name,
-                network: vm.network,
-                mnemonic: (vm.mnemonics ? vm.mnemonics : undefined),
-                type: vm.walletType,
-                password: password,
-                spendingPassword: spendingPassword,
-                zapwallettxes: zapwallettxes,
-                log: log
-              });
-          }
-          console.log("is open -> " + wallet.db.open);
-          window.wallet = wallet;
-          window.njs = njs;
+      subcribeWalletEvents()
+      {
+          let vm=this;
           wallet.on("new_mnemonic", (mnemonic) => {
             if (!vm.db_load_failed) {
               vm.mnemonics = mnemonic;
@@ -2410,6 +2678,8 @@ export default {
                 vm.processAction();
               }
             });
+            wallet.ClearNodeList();
+            wallet.AddNode('electrum.nextwallet.org', 40004, 'wss');
             await wallet.Connect();
           });
           wallet.on("connected", async (node) => {
@@ -2436,7 +2706,7 @@ export default {
             vm.progress = 100;
             wallet.GetBalance().then((value) => {
               vm.balance = value;
-              wallet.GetMyTokens(vm.password).then((value) => {
+              wallet.GetMyTokens(vm.spendingPassword).then((value) => {
                 vm.isPrivateTokensSynced = true;
                 vm.privateTokens = value;
                 console.log("Getting private tokens...");
@@ -2478,17 +2748,152 @@ export default {
           wallet.Load({ bootstrap: njs.wallet.xNavBootstrap })
             .then(() => {
               console.log("wallet loaded");
-              if (this.isNewWallet) {
-                this.page = "verify-mnemonics";
+              if (vm.isNewWallet) {
+                vm.page = "verify-mnemonics";
               } else {
-                this.walletUnlocked = true;
-                this.page = "home";
+                vm.walletUnlocked = true;
+                vm.page = "home";
               }
             })
             .catch(function(e) {
               vm.walletLoginSuccess = false;
               vm.page = "select-wallet";
             });
+      },
+      setLatestUsedWallet(walletName,password)
+      {
+        console.log("Saving last used wallet details...");
+        chrome.storage.session.set({ last_active_wallet: walletName, password: password }, function()
+        {
+          chrome.storage.session.get(["last_active_wallet","password"], function(result)
+          {
+            console.log(result);
+          });
+        });
+      },
+      initWallet()
+      {
+        let vm = this;
+        const walletFile = vm.active_wallet_name; // File name of the wallet database, persistence using dexie db backend only works on the browser
+        const zapwallettxes = false; // Should the wallet be cleared of its history?
+        const log = false; // Log to console
+        ENCRYPTION_KEY=crypto.createHash('md5').update(vm.password).digest("hex");
+        njs.wallet.Init().then(async () => {
+          if (vm.active_wallet_already_exist)
+          {
+            try
+            {
+                let arr = vm.active_wallet_name.split("_");
+                vm.network=arr[2];
+                console.log("Getting wallet details from chrome storage...");
+                chrome.storage.local.get({ wallets: [] }, function(result) {
+                result.wallets.forEach(w => 
+                {
+                  if (w.name==vm.active_wallet_name)
+                  {
+                    console.log("Existing wallet found from chrome storage...");
+                    let open_password=vm.decrypt(w.open_password);
+                    let spending_password=vm.decrypt(w.spending_password);
+                    vm.spendingPassword=spending_password;
+                    if (open_password!=false&&spending_password!=false)
+                    {
+                      vm.setLatestUsedWallet(vm.active_wallet_name,vm.password);
+                      console.log("Password verified...");
+                      console.log(open_password);
+                      console.log(spending_password);
+                      console.log("Loading existing wallet : " + vm.active_wallet_name);
+                      vm.walletLoginSuccess = true;
+                      vm.page = "wallet-loading";
+                      wallet = new njs.wallet.WalletFile(
+                        {
+                          file: vm.active_wallet_name,
+                          zapwallettxes: zapwallettxes,
+                          password: open_password,
+                          spendingPassword: spending_password,
+                          log: true
+                        });
+                      vm.setLatestUsedWallet(vm.active_wallet_name,vm.password);
+                      vm.subcribeWalletEvents();
+                      window.wallet = wallet;
+                      window.njs = njs;
+                    }
+                    else
+                    {
+                      console.log("Invalid password...");
+                      UIkit.modal.alert("<p>Invalid password.</p><p>Please try again...</p>");
+                    }
+                  }
+                });
+              });
+            }
+            catch (e)
+            {
+            }
+          }
+          else
+          {
+            console.log("Creating and loading new wallet : " + vm.active_wallet_name + "(" + vm.walletType + ")" + "(" + vm.network + ")");
+            console.log("Password : " + vm.password);
+            let randomOpenPassword=this.generateRandomPassword(64);
+            let randomSpendingPassword=this.generateRandomPassword(64);
+            vm.spendingPassword=randomSpendingPassword;
+            console.log("Open password:"+randomOpenPassword);
+            console.log("Spending password:"+randomSpendingPassword);
+            try
+            {
+                console.log("Getting wallet details from chrome storage...");
+                chrome.storage.local.get({ wallets: [] }, function(result)
+                {
+                  var wallets = result.wallets;
+                  console.log(wallets);
+                  let is_wallet_found=false;
+                  wallets.forEach(w => 
+                  {
+                    if (w.name==vm.active_wallet_name)
+                    {
+                      console.log("Wallet already added to chrome storage, updating encrypted passwords...");
+                      is_wallet_found=true;
+                      w.name=vm.active_wallet_name;
+                      w.open_password=vm.encrypt(randomOpenPassword);
+                      w.spending_password=vm.encrypt(randomSpendingPassword);
+                    }
+                  });
+                  if (!is_wallet_found)
+                  {
+                    console.log("Adding wallet encrypted passwords to chrome storage...");
+                    wallets.push({
+                      name:vm.active_wallet_name,
+                      open_password: vm.encrypt(randomOpenPassword),
+                      spending_password: vm.encrypt(randomSpendingPassword)
+                    });
+                  }
+                  chrome.storage.local.set({ wallets: wallets }, function()
+                  {
+                    chrome.storage.local.get("wallets", function(result) {
+                      console.log(result.wallets);
+                    });
+                  });
+                  vm.setLatestUsedWallet(vm.active_wallet_name,vm.password);
+                  wallet = new njs.wallet.WalletFile(
+                  {
+                    file: vm.active_wallet_name,
+                    network: vm.network,
+                    mnemonic: (vm.mnemonics ? vm.mnemonics : undefined),
+                    type: vm.walletType,
+                    password: randomOpenPassword,
+                    spendingPassword: randomSpendingPassword,
+                    zapwallettxes: zapwallettxes,
+                    log: true
+                  });
+                  vm.subcribeWalletEvents();
+                  window.wallet = wallet;
+                  window.njs = njs;
+                });
+            }
+            catch (e)
+            {
+            }
+          }
         });
       }
     }
@@ -2508,6 +2913,8 @@ body {
 
 .address {
   width: 320px;
+  font-family:"Courier New";
+  font-size:9pt;
 }
 
 .card-public {

@@ -59,7 +59,7 @@ function processExternalMessage(message, sender, sendResponse)
           console.log("response received from existing window");
           console.log(response);
         });
-        if (e_message.method!="list_nft_collections")
+        if (e_message.method!="list_nft_collections"&&e_message.method!="get_wallet_info")
         {
           chrome.windows.update(tabs[i].windowId, { "focused": true });
         }
@@ -113,6 +113,32 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse)
         function: m_reject_connection
       });
     }
+    else if (message.cmd=="accept_create_token")
+    {
+      console.log("Accepting create token");
+      console.log("Sending to tab :" + tabId);
+      sendResponse({cmd: message.cmd,result:true});
+      chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        world:"MAIN",
+        function: m_create_token,
+        args:[true,message.tx]
+      });
+    } 
+    else if (message.cmd=="reject_create_token")
+    {
+      console.log("Reject create token");
+      console.log("Sending to tab :" + tabId);
+      sendResponse({cmd: message.cmd,result:true});
+      chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        world:"MAIN",
+        function: m_create_token,
+        args:[false,false]
+      });
+    }
     else if (message.cmd=="accept_create_nft_collection")
     {
       console.log("Accept nft collection");
@@ -123,7 +149,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse)
         target: { tabId: tabId },
         world:"MAIN",
         function: m_create_nft_collection,
-        args:[true]
+        args:[true,message.tx]
       });
     } 
     else if (message.cmd=="reject_create_nft_collection")
@@ -136,7 +162,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse)
         target: { tabId: tabId },
         world:"MAIN",
         function: m_create_nft_collection,
-        args:[false]
+        args:[false,false]
       });
     }
     else if (message.cmd=="accept_create_nft")
@@ -175,7 +201,20 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse)
         target: { tabId: tabId },
         world:"MAIN",
         function: m_list_nft_collections,
-        args:[message.collections]
+        args:[message.collections,message.private_tokens]
+      });
+    }
+    else if (message.cmd=="get_wallet_info")
+    {
+      console.log("Get wallet info");
+      console.log("Sending to tab :" + tabId);
+      sendResponse({cmd: message.cmd,result:true});
+      chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        world:"MAIN",
+        function: m_get_wallet_info,
+        args:[message.wallet_info]
       });
     }
     else if (message.cmd=="accept_create_nft_sell_order")
@@ -188,7 +227,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse)
         target: { tabId: tabId },
         world:"MAIN",
         function: m_accept_create_nft_sell_order,
-        args:[message.result]
+        args:[message.result,(message.token_id?message.token_id:null),(message.nft_id?message.nft_id:null)]
       });
     }
     else if (message.cmd=="reject_create_nft_sell_order")
@@ -203,7 +242,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse)
         function: m_reject_create_nft_sell_order,
         args:[]
       });
-    }       
+    }
     else if (message.cmd=="accept_get_nft_sell_order")
     {
       console.log("Returning nft sell order");
@@ -227,7 +266,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse)
         target: { tabId: tabId },
         world:"MAIN",
         function: m_accept_cancel_nft_order,
-        args:[]
+        args:[message.token_id,message.nft_id]
       });
     }
     else if (message.cmd=="reject_cancel_nft_order")
@@ -240,9 +279,35 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse)
         target: { tabId: tabId },
         world:"MAIN",
         function: m_reject_cancel_nft_order,
-        args:[]
+        args:[message.token_id,message.nft_id]
       });
     }
+    else if (message.cmd=="accept_cancel_token_order")
+    {
+      console.log("Accepting cancel token order");
+      console.log("Sending to tab :" + tabId);
+      sendResponse({cmd: message.cmd,result:true});
+      chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        world:"MAIN",
+        function: m_accept_cancel_token_order,
+        args:[message.order_id]
+      });
+    }
+    else if (message.cmd=="reject_cancel_token_order")
+    {
+      console.log("Rejecting cancel token order");
+      console.log("Sending to tab :" + tabId);
+      sendResponse({cmd: message.cmd,result:true});
+      chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        world:"MAIN",
+        function: m_reject_cancel_token_order,
+        args:[message.order_id]
+      });
+    }    
     else if (message.cmd=="accept_create_transaction")
     {
       console.log("Accepting create transaction");
@@ -347,6 +412,97 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse)
         args:[]
       });
     }
+    else if (message.cmd=="reject_nft_order")
+    {
+      console.log("Rejecting nft buy order");
+      console.log("Sending to tab :" + tabId);
+      sendResponse({cmd: message.cmd,result:true});
+      chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        world:"MAIN",
+        function: m_reject_nft_order,
+        args:[]
+      });
+    }
+    else if (message.cmd=="accept_create_token_order")
+    {
+      console.log("Accepting create token order");
+      console.log("Sending to tab :" + tabId);
+      sendResponse({cmd: message.cmd,result:true});
+      chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        world:"MAIN",
+        function: m_accept_create_token_order,
+        args:[message.result]
+      });
+    }
+    else if (message.cmd=="reject_create_token_order")
+    {
+      console.log("Reject create token order");
+      console.log("Sending to tab :" + tabId);
+      sendResponse({cmd: message.cmd,result:true});
+      chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        world:"MAIN",
+        function: m_reject_create_token_order,
+        args:[]
+      });
+    }
+    else if (message.cmd=="accept_token_order")
+    {
+      console.log("Accepting token order");
+      console.log("Sending to tab :" + tabId);
+      sendResponse({cmd: message.cmd,result:true});
+      chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        world:"MAIN",
+        function: m_accept_token_order,
+        args:[message.result]
+      });
+    }
+    else if (message.cmd=="reject_token_order")
+    {
+      console.log("Reject token order");
+      console.log("Sending to tab :" + tabId);
+      sendResponse({cmd: message.cmd,result:true});
+      chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        world:"MAIN",
+        function: m_reject_token_order,
+        args:[]
+      });
+    }
+    else if (message.cmd=="reject_create_token_pair")
+    {
+      console.log("Rejecting create token pair");
+      console.log("Sending to tab :" + tabId);
+      sendResponse({cmd: message.cmd,result:true});
+      chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        world:"MAIN",
+        function: m_reject_create_token_pair,
+        args:[]
+      });
+    }
+    else if (message.cmd=="accept_create_token_pair")
+    {
+      console.log("Accepting create token pair");
+      console.log("Sending to tab :" + tabId);
+      sendResponse({cmd: message.cmd,result:true});
+      chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        world:"MAIN",
+        function: m_accept_create_token_pair,
+        args:[]
+      });
+    }
     else if (message.cmd=="reject_wrong_network")
     {
       console.log("Rejecting wrong network");
@@ -423,9 +579,14 @@ function m_reject_connection()
   reject_connection();
 }
 
-function m_create_nft_collection(result)
+function m_create_token(result,tx)
 {
-  create_nft_collection(result);
+  create_token(result,tx);
+}
+
+function m_create_nft_collection(result,tx)
+{
+  create_nft_collection(result,tx);
 }
 
 function m_create_nft(result)
@@ -433,14 +594,19 @@ function m_create_nft(result)
   create_nft(result);
 }
 
-function m_list_nft_collections(collections)
+function m_list_nft_collections(collections,private_tokens)
 {
-  list_nft_collections(collections);
+  list_nft_collections(collections,private_tokens);
 }
 
-function m_accept_create_nft_sell_order(result)
+function m_get_wallet_info(wallet_info)
 {
-  accept_create_nft_sell_order(result);
+  get_wallet_info(wallet_info);
+}
+
+function m_accept_create_nft_sell_order(result,token_id,nft_id)
+{
+  accept_create_nft_sell_order(result,token_id,nft_id);
 }
 
 function m_reject_create_nft_sell_order()
@@ -453,14 +619,24 @@ function m_accept_get_nft_sell_order(order)
   accept_get_nft_sell_order(order);
 }
 
-function m_accept_cancel_nft_order()
+function m_accept_cancel_nft_order(token_id,nft_id)
 {
-  accept_cancel_nft_order();
+  accept_cancel_nft_order(token_id,nft_id);
 }
 
-function m_reject_cancel_nft_order()
+function m_reject_cancel_nft_order(token_id,nft_id)
 {
-  reject_cancel_nft_order();
+  reject_cancel_nft_order(token_id,nft_id);
+}
+
+function m_accept_cancel_token_order(order_id)
+{
+  accept_cancel_token_order(order_id);
+}
+
+function m_reject_cancel_nft_order(order_id)
+{
+  reject_cancel_token_order(order_id);
 }
 
 function m_accept_create_transaction(tx)
@@ -501,6 +677,41 @@ function m_accept_mint_private_token(tx)
 function m_reject_mint_private_token()
 {
   reject_mint_private_token();
+}
+
+function m_reject_nft_order()
+{
+  reject_nft_order();
+}
+
+function m_reject_create_token_order()
+{
+  reject_create_token_order();
+}
+
+function m_accept_create_token_order(order)
+{
+  accept_create_token_order(order);
+}
+
+function m_accept_token_order(result)
+{
+  accept_token_order(result);
+}
+
+function m_reject_token_order()
+{
+  reject_token_order();
+}
+
+function m_reject_create_token_pair()
+{
+  reject_create_token_pair();
+}
+
+function m_accept_create_token_pair()
+{
+  accept_create_token_pair();
 }
 
 function m_reject_wrong_network(network)

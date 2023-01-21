@@ -1,6 +1,6 @@
 {
   "name": "navcoin-wallet-chrome-extension",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Navcoin Wallet Chrome Extension",
   "scripts": {
     "deploy": "./deploy.sh",

@@ -2,7 +2,7 @@
   <div class="container">
     <div class="uk-container" v-if="walletUnlocked" style="margin-top:5px;">
       <div class="uk-inline" style="width:100%">
-        <button class="uk-button uk-button-small uk-button-default" type="button"><i
+        <button class="uk-button uk-button-small uk-button-default" type="button" style="margin-right:5px;"><i
           class="fa-solid fa-ellipsis-vertical"></i>&nbsp;
         </button>
         <div class="uk-width-1-1" uk-dropdown="mode:click" id="menu" style="min-width: 350px;">
@@ -32,6 +32,7 @@
                 <li><a href="#" v-on:click="changePage('address_book')">Address Book</a></li>
                 <li><a href="#" v-on:click="closeWallet()">Close Wallet</a></li>
                 <li><a href="#" v-on:click="changePage('backup-wallet')">Backup Wallet</a></li>
+                <li><a href="#" v-on:click="exportToCsv('history',history)">Export History</a></li>
                 <li><a href="#" v-on:click="changePage('remove-wallet')">Remove Wallet</a></li>
                 <li class="uk-nav-divider"></li>
                 <li><a href="#" v-on:click="changePage('about')">About</a></li>
@@ -39,15 +40,13 @@
             </div>
           </div>
         </div>
-        <button class="uk-button uk-button-small uk-button-default" type="button" v-if="page!='home'"
-                v-on:click="changePage('home')"><i class="fa-solid fa-home"></i>&nbsp;
-        </button>
+        <button class="uk-button uk-button-small uk-button-link" type="button" v-if="page=='home'" title="Lock Wallet" v-on:click="closeWallet()"><i class="fa-solid fa-lock"></i>&nbsp;</button>
+        <button class="uk-button uk-button-small uk-button-link" type="button" v-if="page!='home'" v-on:click="changePage('home')"><i class="fa-solid fa-home"></i>&nbsp;</button>
         <span v-if="progress!=100" style="margin-left:5px;width:100%;">
           <span uk-spinner style="width:14px;height:14px;"></span>&nbsp;<small>{{ status }}</small>
         </span>
+        <span v-if="progress==100" :title="current_node" style="float:right;margin-left:5px;margin-bottom: 0px !important;"><small><i class="fa-solid fa-diagram-project"></i>&nbsp;{{ network }}</small></span>
         <span v-if="progress==100" style="float:right;margin-left:5px;margin-bottom: 0px !important;"><small><i class="fa-solid fa-hammer"></i>&nbsp;{{ height }}</small></span>
-        <span v-if="progress==100" style="float:right;margin-left:5px;margin-bottom: 0px !important;"><small><i class="fa-solid fa-bolt"></i>&nbsp;{{ current_node }}</small></span>
-        <span v-if="progress==100" style="float:right;margin-left:5px;margin-bottom: 0px !important;"><small><i class="fa-solid fa-diagram-project"></i>&nbsp;{{ network }}</small></span>
       </div>
     </div>
     <div class="uk-container" v-if="page=='verify-mnemonics'" style="margin-top:15px;">
@@ -519,8 +518,33 @@
             <button class="uk-button uk-button-default uk-modal-close" type="button"
                     v-on:click="rejectCancelNFTSellOrder()">Reject
             </button>
-            <button class="uk-button uk-button-primary uk-modal-close" type="button"
+            <button class="uk-button uk-button-primary" type="button"
                     v-on:click="acceptCancelNFTSellOrder()">Accept
+            </button>
+          </p>
+        </div>
+      </div>
+
+      <div id="modal-cancel-token-order-confirm" uk-modal v-if="action">
+        <div class="uk-modal-dialog uk-modal-body">
+          <h3>Cancel Token Order</h3>
+          <div v-if="action.order_id&&order">
+            <p>The website "<b>{{ sender.origin }}</b>" requests to cancel token order.</p>
+            <b>Order ID</b> : {{action.order_id}}
+            <hr/>
+            <h5 style="margin-top:0px;margin-bottom:3px;">Send <span class="badge badge-danger">-{{toBitcoin(order.receive[0].amount)}} {{order.receive[0].symbol}}</span></h5>
+            <div>Token ID : <small style="word-break:break-word;">{{order.receive[0].tokenId}}</small></div>
+            <hr/>
+            <h5 style="margin-top:0px;margin-bottom:3px;">Receive <span class="badge badge-success">+{{toBitcoin(order.pay[0].amount)}} {{order.pay[0].symbol}}</span></h5>
+            <div>Token ID : <small style="word-break:break-word;">{{order.pay[0].tokenId}}</small></div>
+          </div>
+          <p>Do you confirm cancel token order?</p>
+          <p class="uk-text-right">
+            <button class="uk-button uk-button-default uk-modal-close" type="button" v-on:click="rejectCancelTokenOrder()">
+              Reject
+            </button>
+            <button class="uk-button uk-button-primary" type="button" v-on:click="acceptCancelTokenOrder()">
+              Accept
             </button>
           </p>
         </div>
@@ -536,7 +560,7 @@
             <button class="uk-button uk-button-default uk-modal-close" type="button"
                     v-on:click="rejectCreateTransaction()">Reject
             </button>
-            <button class="uk-button uk-button-primary uk-modal-close" type="button"
+            <button class="uk-button uk-button-primary" type="button"
                     v-on:click="acceptCreateTransaction()">Accept
             </button>
           </p>
@@ -570,7 +594,7 @@
             <button class="uk-button uk-button-default uk-modal-close" type="button"
                     v-on:click="rejectCreatePrivateToken()">Reject
             </button>
-            <button class="uk-button uk-button-primary uk-modal-close" type="button"
+            <button class="uk-button uk-button-primary" type="button"
                     v-on:click="acceptCreatePrivateToken()">Accept
             </button>
           </p>
@@ -588,8 +612,83 @@
             <button class="uk-button uk-button-default uk-modal-close" type="button"
                     v-on:click="rejectMintPrivateToken()">Reject
             </button>
-            <button class="uk-button uk-button-primary uk-modal-close" type="button"
+            <button class="uk-button uk-button-primary" type="button"
                     v-on:click="acceptMintPrivateToken()">Accept
+            </button>
+          </p>
+        </div>
+      </div>
+      <div id="modal-create-token-pair-confirm" uk-modal v-if="action">
+        <div class="uk-modal-dialog uk-modal-body">
+          <h3>Create Token Trading Pair</h3>
+          <p>The website "<b>{{ sender.origin }}</b>" requests to create a token trading pair.</p>
+          <hr/>
+          <h5 style="margin-top:0px;margin-bottom:3px;">Pair 1</h5> 
+          <div style="word-break:break-word;">
+            Token ID : <small>{{ action.token_id }}</small>
+          </div>
+          <div style="word-break:break-word;" v-if="pair_1_token">
+            <div v-if="pair_1_token.name">
+              <div>
+                Token Name : <b>{{pair_1_token.name}}</b>
+              </div>
+              <div>
+                Token Symbol : <b>{{pair_1_token.code}}</b>
+              </div>
+            </div>
+          </div>
+          <div v-else>
+            <div class="uk-alert-warning" uk-alert>
+              <p>Unable to get token details...</p>
+            </div>
+          </div>
+          <hr/>
+          <h5 style="margin-top:0px;margin-bottom:3px;">Pair 2</h5>
+          <div style="word-break:break-word;">
+            Token ID : <small>{{ action.pair_id }}</small>
+          </div>
+          <div style="word-break:break-word;" v-if="pair_2_token">
+            <div v-if="pair_2_token.name">
+              <div>
+                Token Name : <b>{{pair_2_token.name}}</b>
+              </div>
+              <div>
+                Token Symbol : <b>{{pair_2_token.code}}</b>
+              </div>
+            </div>
+          </div>
+          <div v-else>
+            <div class="uk-alert-warning" uk-alert>
+              <p>Unable to get token details...</p>
+            </div>
+          </div>
+          <p>Do you confirm to create token trading pair?</p>
+          <p class="uk-text-right">
+            <button class="uk-button uk-button-default uk-modal-close" type="button"
+                    v-on:click="rejectCreateTokenPair()">Reject
+            </button>
+            <button class="uk-button uk-button-primary" type="button"
+                    v-on:click="acceptCreateTokenPair()">Accept
+            </button>
+          </p>
+        </div>
+      </div>
+      <div id="modal-create-token-confirm" uk-modal v-if="action">
+        <div class="uk-modal-dialog uk-modal-body">
+          <h3>Create Private Token</h3>
+          <p>The website "<b>{{ sender.origin }}</b>" requests to create a private token on your wallet.</p>
+          <div v-if="action.max_supply">
+            <div>Token name : {{ action.name }}</div>
+            <div>Token symbol : {{ action.symbol }}</div>
+            <div>Maximum Supply : {{ action.max_supply.toLocaleString() }}</div>
+          </div>
+          <p>Do you confirm to create private token?</p>
+          <p class="uk-text-right">
+            <button class="uk-button uk-button-default uk-modal-close" type="button"
+                    v-on:click="rejectCreateToken()">Reject
+            </button>
+            <button class="uk-button uk-button-primary" type="button"
+                    v-on:click="acceptCreateToken()">Accept
             </button>
           </p>
         </div>
@@ -607,7 +706,7 @@
             <button class="uk-button uk-button-default uk-modal-close" type="button"
                     v-on:click="rejectCreateNFTCollection()">Reject
             </button>
-            <button class="uk-button uk-button-primary uk-modal-close" type="button"
+            <button class="uk-button uk-button-primary" type="button"
                     v-on:click="acceptCreateNFTCollection()">Accept
             </button>
           </p>
@@ -626,8 +725,9 @@
             <span uk-spinner style="width:14px;height:14px;"></span>&nbsp;<small>Loading NFT collections...</small>
           </div>
           <div v-if="isPrivateTokensSynced && privateTokens.length>0">
-            <p>Please select a collection for import :</p>
-            <select class="uk-select" style="width: 100%" v-model="mint_nft_token_id">
+            <p v-if="!action.token_id">Please select the collection in which your NFT will be included :</p>
+            <p v-if="action.token_id">Your NFT will be included in the following collection :</p>
+            <select :disabled="action.token_id" class="uk-select" style="width: 100%" v-model="mint_nft_token_id">
               <option v-bind:value="item.id" v-for="(item,index) in privateTokens.filter(item => item.version==1)">
                 {{ item.name }}
               </option>
@@ -642,7 +742,7 @@
             <button class="uk-button uk-button-default uk-modal-close" type="button" v-on:click="rejectCreateNFT()">
               Reject
             </button>
-            <button :disabled="!mint_nft_token_id" class="uk-button uk-button-primary uk-modal-close" type="button"
+            <button :disabled="!mint_nft_token_id" class="uk-button uk-button-primary" type="button"
                     v-on:click="acceptCreateNFT()">Accept
             </button>
           </p>
@@ -671,7 +771,31 @@
             <button class="uk-button uk-button-default uk-modal-close" type="button" v-on:click="rejectNFTOrder()">
               Reject
             </button>
-            <button class="uk-button uk-button-primary uk-modal-close" type="button" v-on:click="acceptNFTOrder()">
+            <button class="uk-button uk-button-primary" type="button" v-on:click="acceptNFTOrder()">
+              Accept
+            </button>
+          </p>
+        </div>
+      </div>
+      <div id="modal-accept-token-order-confirm" uk-modal v-if="action">
+        <div class="uk-modal-dialog uk-modal-body">
+          <h3>Accept Token Order</h3>
+          <div v-if="action.order_id&&order">
+            <p>The website "<b>{{ sender.origin }}</b>" requests to accept token order.</p>
+            <b>Order ID</b> : {{action.order_id}}
+            <hr/>
+            <h5 style="margin-top:0px;margin-bottom:3px;">Send <span class="badge badge-danger">-{{toBitcoin(order.pay[0].amount)}} {{order.pay[0].symbol}}</span></h5>
+            <div>Token ID : <small style="word-break:break-word;">{{order.pay[0].tokenId}}</small></div>
+            <hr/>
+            <h5 style="margin-top:0px;margin-bottom:3px;">Receive <span class="badge badge-success">+{{toBitcoin(order.receive[0].amount)}} {{order.receive[0].symbol}}</span></h5>
+            <div>Token ID : <small style="word-break:break-word;">{{order.receive[0].tokenId}}</small></div>
+          </div>
+          <p>Do you confirm token trade request?</p>
+          <p class="uk-text-right">
+            <button class="uk-button uk-button-default uk-modal-close" type="button" v-on:click="rejectTokenOrder()">
+              Reject
+            </button>
+            <button class="uk-button uk-button-primary" type="button" v-on:click="acceptTokenOrder()">
               Accept
             </button>
           </p>
@@ -711,12 +835,44 @@
             <button class="uk-button uk-button-default uk-modal-close" type="button"
                     v-on:click="rejectCreateNFTSellOrder()">Reject
             </button>
-            <button class="uk-button uk-button-primary uk-modal-close" type="button"
+            <button class="uk-button uk-button-primary" type="button"
                     v-on:click="acceptCreateNFTSellOrder()">Accept
             </button>
           </p>
         </div>
       </div>
+      <div id="modal-create-token-order-confirm" uk-modal v-if="action">
+        <div class="uk-modal-dialog uk-modal-body">
+          <h3>Create Token Order</h3>
+          <p>The website "<b>{{ sender.origin }}</b>" requests to create a Token order.</p>
+          <div>
+           Order Type : <b>{{action.orderType}}</b>
+          </div>
+          <hr/>
+          <h5 style="margin-top:0px;margin-bottom:3px;">Send
+            <span style="margin-left:5px;" class="badge badge-danger">
+              -{{action.tokenOutAmount}} {{(token_1_code?token_1_code:"xNAV")}}
+            </span>
+          </h5>
+          <div style="word-break:break-word;">{{ (action.tokenOutId?action.tokenOutId:"Not specified") }}</div>
+          <hr/>
+          <h5 style="margin-top:0px;margin-bottom:3px;">Receive
+            <span style="margin-left:5px;" class="badge badge-success">
+              +{{action.tokenInAmount}} {{(token_0_code?token_0_code:"xNAV")}}
+            </span>
+          </h5>
+          <div style="word-break:break-word;">{{ (action.tokenInId?action.tokenInId:"Not specified") }}</div>
+          <p>Do you confirm to create token order?</p>
+          <p class="uk-text-right">
+            <button class="uk-button uk-button-default uk-modal-close" type="button"
+                    v-on:click="rejectCreateTokenOrder()">Reject
+            </button>
+            <button class="uk-button uk-button-primary" type="button"
+                    v-on:click="acceptCreateTokenOrder()">Accept
+            </button>
+          </p>
+        </div>
+      </div>      
       <ul v-if="page=='home'" class="uk-subnav uk-subnav-pill" style="width:100%"
           uk-switcher="animation: uk-animation-slide-left-medium, uk-animation-slide-right-medium">
         <li><a href="#">Wallet</a></li>
@@ -903,6 +1059,9 @@
 										</span>
                     </div>
                   </template>
+                  <div style="word-break:break-word;">
+                    <small>{{tx.hash}}</small>
+                  </div>
                 </div>
                 <div class="uk-card-footer">
                   <span>{{ (tx.confirmed ? "Confirmed" : "Not Confirmed") }}</span>
@@ -1174,7 +1333,7 @@ export default {
             code: "testnet"
           }
         ],
-      version:"1.0.3",
+      version:"1.0.4",
       walletType: "next",
       network: "testnet",
       wallet_name: "",
@@ -1245,6 +1404,12 @@ export default {
       db_load_failed: false,
       book_name:'',
       book_address:'',
+      auto_unlock_active:false,
+      token_0_code:undefined,
+      token_1_code:undefined,
+      order:undefined,
+      pair_1_token:undefined,
+      pair_2_token:undefined
     };
   },
   beforeCreate() {
@@ -1266,6 +1431,8 @@ export default {
     },
   created: function()
   {
+    window.buffer=buffer;
+    window.bitcore=bitcore;
     //chrome.storage.local.clear();
     let vm=this;
     try {
@@ -1281,23 +1448,12 @@ export default {
   mounted: function() {
     let vm = this;
     vm.njs = njs;
-    window.bitcore=bitcore;
     console.log("navcoin-js build " + njs.version);
     var views = [];
-    try {
-      views = chrome.extension.getViews({ type: "popup" });
-      console.log("Popup mode...");
-      console.log(views);
-    } catch (e) {
-      console.log("Window mode...");
-      vm.listWallets();
-    }
-    console.log("Views length -> " + views.length);
-    if (views.length > 0) {
-      vm.listWallets();
-    }
-    try {
-      chrome.runtime.sendMessage({ cmd: "ready" }, function(response) {
+    try
+    {
+      chrome.runtime.sendMessage({ cmd: "ready" }, function(response)
+      {
         vm.is_action_processed = false;
         vm.action = response.message;
         vm.sender = response.sender;
@@ -1305,32 +1461,58 @@ export default {
         {
           if (result.last_active_wallet&&result.password)
           {
-            console.log(result.last_active_wallet);
-            console.log(result.password);
-            let arr = result.last_active_wallet.split("_");
+            let arr=result.last_active_wallet.split("_");
+            console.log("Latest used wallet -> " + result.last_active_wallet);
+            console.log("Latest used network -> " + arr[2]);
+            if (vm.action)
             {
-              console.log("Latest used wallet -> " + result.last_active_wallet);
-              console.log("Latest used network -> " + arr[2]);
-              console.log("dApp network -> " + vm.action.network);
               if (arr[2]==vm.action.network)
               {
+                console.log("dApp network -> " + vm.action.network);
                 console.log("Wallet & dAPP network are same, unlocking wallet...");
                 console.log("Active wallet -> " + vm.active_wallet_name);
                 vm.active_wallet_name=result.last_active_wallet;
                 vm.active_wallet_already_exist=true;
                 vm.password=result.password;
+                vm.auto_unlock_active=true;
                 vm.unlockWallet();
               }
               else
               {
-                console.log("Wallet & dAPP network are not same...");
+                console.log("Wallet & dAPP network are not same, auto unlock disabled...");
               }
             }
+            else
+            {
+                console.log("Opening latest used wallet in popup mode...")
+                vm.active_wallet_name=result.last_active_wallet;
+                vm.active_wallet_already_exist=true;
+                vm.password=result.password;
+                vm.auto_unlock_active=true;
+                vm.unlockWallet();
+            }
           }
-        }); 
-        if (views.length < 1) {
-          vm.listWallets();
-        }
+          try
+          {
+            views = chrome.extension.getViews({ type: "popup" });
+            console.log("Popup mode...");
+            console.log(views);
+          }
+          catch (e)
+          {
+            console.log("Window mode...");
+            vm.listWallets();
+          }
+          console.log("Views length -> " + views.length);
+          if (views.length > 0)
+          {
+            vm.listWallets();
+          }
+          if (views.length < 1)
+          {
+            vm.listWallets();
+          }
+        }) 
       });
       chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
         console.log("new message");
@@ -1345,7 +1527,9 @@ export default {
           vm.processAction();
         }
       });
-    } catch (e) {
+    }
+    catch (e)
+    {
     }
   },
   updated: function() {
@@ -1420,6 +1604,37 @@ export default {
           return false;
         }
       },
+      exportToCsv(filename, arr)
+      {
+        UIkit.dropdown("#menu").hide(0);
+        const array = [Object.keys(arr[0])].concat(arr);
+
+        let csvContent = array.map(it => 
+        {
+          if (it["memos"]) it["memos"]=JSON.stringify(it["memos"]);
+          if (it["addresses_in"]) it["addresses_in"]=JSON.stringify(it["addresses_in"]);
+          if (it["addresses_out"]) it["addresses_out"]=JSON.stringify(it["addresses_out"]);
+          if (it["strdzeel"]) it["strdzeel"]=JSON.stringify(it["strdzeel"]);
+          return Object.values(it).join(';').toString()
+        }).join('\n')
+
+        var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        if (navigator.msSaveBlob) { // IE 10+
+            navigator.msSaveBlob(blob, filename);
+        } else {
+            var link = document.createElement("a");
+            if (link.download !== undefined) { // feature detection
+                // Browsers that support HTML5 download attribute
+                var url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+      },
       setNetwork(network) {
         console.log("Changing network to -> " + network.code);
         this.network = network.code;
@@ -1427,6 +1642,7 @@ export default {
       },
       listWallets() {
         let vm = this;
+        if (vm.auto_unlock_active) return;
         vm.wallets = [];
         console.log("Listing wallets...");
         vm.njs.wallet.WalletFile.ListWallets().then((wallets) => {
@@ -1618,6 +1834,7 @@ export default {
             wallet.Disconnect();
             wallet.CloseDb();
             chrome.storage.session.clear();
+            this.auto_unlock_active=false;
             this.mnemonics = undefined;
             this.balance = undefined;
             this.privateTokens = [];
@@ -1827,7 +2044,7 @@ export default {
       importExistingWallet() {
         this.active_wallet_already_exist = false;
         this.isImportActive = true;
-        this.changePage("create-wallet");
+        this.changePage("select-network");
       },
       unlockWallet: function() {
         if (!this.active_wallet_name) {
@@ -1922,6 +2139,7 @@ export default {
         wallet.Disconnect();
         wallet.CloseDb();
         chrome.storage.session.clear();
+        this.auto_unlock_active=false;
         this.mnemonics = undefined;
         this.balance = undefined;
         this.privateTokens = [];
@@ -2001,6 +2219,9 @@ export default {
           return "";
         }
       },
+      toBitcoin: n => {
+        return sb.toBitcoin(n);
+      },
       formatDate: n => {
         if (n) return moment.unix(n).format("DD.MM.YY HH:mm:ss"); else return "";
       },
@@ -2054,6 +2275,44 @@ export default {
             UIkit.modal.alert(e.message);
           });
       },
+      acceptTokenOrder() {
+        let vm = this;
+        vm.action=undefined;
+        console.log("Accepting token order...");
+        console.log(this.order);
+        vm.process_message = "Accepting order...";
+        UIkit.modal("#modal-please-wait").show();
+        wallet.AcceptOrder(vm.order, vm.spendingPassword).then(function(tx)
+        {
+          vm.order=undefined;
+          vm.process_message = "Submitting transaction...";
+          wallet.SendTransaction(tx.tx).then(function(result)
+          {
+            if (result.error) {
+              UIkit.modal.alert(result.error);
+            } else {
+              UIkit.modal.alert("Token order successfully accepted.");
+            }
+          })
+          .catch((e) => {
+            UIkit.modal.alert(e.message);
+          });
+        })
+          .catch((e) => {
+            UIkit.modal.alert(e.message);
+          });
+      },
+      rejectTokenOrder() {
+        this.order=undefined;
+        this.action=undefined;
+        try {
+          chrome.runtime.sendMessage({ cmd: "reject_token_order" }, function(response) {
+            console.log(response);
+            //window.close();
+          });
+        } catch (e) {
+        }
+      },
       rejectConnection() {
         try {
           chrome.runtime.sendMessage({ cmd: "reject_connection" }, function(response) {
@@ -2070,7 +2329,7 @@ export default {
         console.log("Creating transaction...");
         let vm = this;
         vm.process_message = "Creating private token...";
-        setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
+        UIkit.modal("#modal-please-wait").show();
         wallet.CreateToken(this.action.name, this.action.symbol, this.action.max_supply * 1e8, this.spendingPassword).then(function(response) {
           console.log(response);
           if (response.tx) {
@@ -2116,7 +2375,7 @@ export default {
         console.log("Creating transaction...");
         let vm = this;
         vm.process_message = "Minting private token...";
-        setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
+        UIkit.modal("#modal-please-wait").show();
         wallet.MintToken(this.action.token_id, this.privateAddress, this.action.amount * 1e8, this.spendingPassword).then(function(response) {
           console.log(response);
           if (response.tx) {
@@ -2180,8 +2439,9 @@ export default {
         console.log(this.action.address);
         console.log(this.action.amount);
         vm.process_message = "Creating transaction...";
-        setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
-        try {
+        UIkit.modal("#modal-please-wait").show();
+        try
+        {
           wallet.xNavCreateTransaction(this.action.address, this.action.amount, "", vm.spendingPassword, vm.isIncludesTxFee).then(function(tx) {
             if (tx.tx) {
               let msg = "<h3>Create Transaction</h3><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Do you confirm transaction?</p>";
@@ -2236,7 +2496,7 @@ export default {
         console.log(this.action.token_id);
         console.log(this.action.nft_id);
         vm.process_message = "Cancelling NFT Sell Order...";
-        setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
+        UIkit.modal("#modal-please-wait").show();
         try {
           wallet.tokenCreateTransaction(vm.privateAddress, 1, undefined, vm.spendingPassword, vm.action.token_id, vm.action.nft_id).then(function(tx) {
             if (tx.tx) {
@@ -2247,14 +2507,14 @@ export default {
                     console.log(result);
                     if (result.error) {
                       UIkit.modal.alert(result.error);
-                      chrome.runtime.sendMessage({ cmd: "reject_cancel_nft_order" }, function(response) {
+                      chrome.runtime.sendMessage({ cmd: "reject_cancel_nft_order",token_id:vm.action.token_id,nft_id:vm.action.nft_id }, function(response) {
                         console.log(response);
                       });
                       UIkit.modal("#modal-please-wait").hide();
                     } else {
                       UIkit.modal("#modal-please-wait").hide();
                       UIkit.modal.alert("NFT sell order has been successfully canceled.");
-                      chrome.runtime.sendMessage({ cmd: "accept_cancel_nft_order" }, function(response) {
+                      chrome.runtime.sendMessage({ cmd: "accept_cancel_nft_order",token_id:vm.action.token_id,nft_id:vm.action.nft_id }, function(response) {
                         console.log(response);
                       });
                     }
@@ -2262,7 +2522,7 @@ export default {
                     .catch((e) => {
                       UIkit.modal("#modal-please-wait").hide();
                       console.log(e);
-                      chrome.runtime.sendMessage({ cmd: "reject_cancel_nft_order" }, function(response) {
+                      chrome.runtime.sendMessage({ cmd: "reject_cancel_nft_order",token_id:vm.action.token_id,nft_id:vm.action.nft_id }, function(response) {
                         console.log(response);
                       });
                       UIkit.modal.alert(e.message);
@@ -2271,7 +2531,7 @@ export default {
                 , function() {
                   UIkit.modal("#modal-please-wait").hide();
                   console.log("Rejected.");
-                  chrome.runtime.sendMessage({ cmd: "reject_cancel_nft_order" }, function(response) {
+                  chrome.runtime.sendMessage({ cmd: "reject_cancel_nft_order",token_id:vm.action.token_id,nft_id:vm.action.nft_id }, function(response) {
                     console.log(response);
                   });
                 });
@@ -2284,6 +2544,79 @@ export default {
           console.log(e);
         }
       },
+      acceptCancelTokenOrder() {
+        console.log("accepting cancel token order");
+        console.log(this.privateAddress);
+        console.log(this.action.order_id);
+        console.log(this.order);
+        let vm = this;
+        console.log("Unlocking order inputs...");
+        vm.process_message = "Unlocking order inputs...";
+        UIkit.modal("#modal-please-wait").show();
+        wallet.UnlockOrderInputs(this.order)
+        .then(() => 
+        {
+          console.log("Order inputs unlocked...");
+          vm.process_message = "Cancelling order...";
+          wallet.CreateCancelOrder(vm.order, vm.spendingPassword).then(function(tx) {
+            UIkit.modal("#modal-please-wait").hide();
+            if (tx.tx) {
+              let msg = "<h3>Cancel Token Order</h3><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Do you confirm transaction?</p>";
+              UIkit.modal.confirm(msg).then(function() {
+                  UIkit.modal("#modal-please-wait").show();
+                  wallet.SendTransaction(tx.tx).then(function(result) {
+                    console.log(result);
+                    if (result.error)
+                    {
+                      chrome.runtime.sendMessage({ cmd: "reject_cancel_token_order" }, function(response) {
+                        console.log(response);
+                      });
+                      UIkit.modal("#modal-please-wait").hide();
+                      UIkit.modal.alert(result.error);
+                    } else {
+                      UIkit.modal("#modal-please-wait").hide();
+                      chrome.runtime.sendMessage({ cmd: "accept_cancel_token_order",order_id:vm.action.order_id }, function(response)
+                      {
+                        console.log(response);
+                        window.close();
+                      });
+                      //UIkit.modal.alert("NFT collection has been successfully created.");
+                    }
+                  })
+                    .catch((e) => {
+                      UIkit.modal("#modal-please-wait").hide();
+                      UIkit.modal.alert(e.message);
+                      console.log(e);
+                      chrome.runtime.sendMessage({ cmd: "reject_cancel_token_order",order_id:vm.action.order_id }, function(response) {
+                        console.log(response);
+                      });
+                    });
+                }
+                , function() {
+                  UIkit.modal("#modal-please-wait").hide();
+                  console.log("Rejected.");
+                  chrome.runtime.sendMessage({ cmd: "reject_cancel_token_order",order_id:vm.action.order_id }, function(response) {
+                    console.log(response);
+                  });
+                });
+            }
+          })
+          .catch((e) => {
+            console.log("Cancel token order failed");
+            console.log(e);
+            UIkit.modal("#modal-please-wait").hide();
+            UIkit.modal.alert(e.message);
+            chrome.runtime.sendMessage({ cmd: "reject_cancel_token_order",order_id:vm.action.order_id }, function(response) {
+              console.log(response);
+            });
+          });
+        })
+        .catch((e) =>
+        {
+          console.log("Unlocking order inputs failed.")
+          console.log(e);
+        });
+    },
       rejectSignMessage() {
         try {
           chrome.runtime.sendMessage({ cmd: "reject_sign_message" }, function(response) {
@@ -2303,30 +2636,91 @@ export default {
         }
       },
       rejectCancelNFTSellOrder() {
+        let vm=this;
         try {
-          chrome.runtime.sendMessage({ cmd: "reject_cancel_nft_order" }, function(response) {
+          chrome.runtime.sendMessage({ cmd: "reject_cancel_nft_order",token_id:vm.action.token_id,nft_id:vm.action.nft_id }, function(response) {
             console.log(response);
-            //window.close();
+            window.close();
           });
         } catch (e) {
         }
       },
-      rejectCreateNFTCollection() {
+      rejectCancelTokenOrder() {
+        let vm=this;
         try {
-          chrome.runtime.sendMessage({ cmd: "reject_cancel_nft_order" }, function(response) {
+          chrome.runtime.sendMessage({ cmd: "reject_cancel_token_order",order_id:vm.action.order_id }, function(response) {
             console.log(response);
-            //window.close();
+            window.close();
           });
         } catch (e) {
         }
       },
+      acceptCreateToken() {
+        console.log("Accepting create token request...");
+        console.log(this.action);
+        let vm = this;
+        vm.process_message = "Creating token...";
+        UIkit.modal("#modal-please-wait").show();
+        wallet.CreateToken(vm.action.name, vm.action.symbol, vm.action.max_supply * 1e8, vm.spendingPassword).then(function(tx) {
+          UIkit.modal("#modal-please-wait").hide();
+          if (tx.tx) {
+            let msg = "<h3>Create Token</h3><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Do you confirm transaction?</p>";
+            UIkit.modal.confirm(msg).then(function() {
+                UIkit.modal("#modal-please-wait").show();
+                wallet.SendTransaction(tx.tx).then(function(result) {
+                  console.log(result);
+                  if (result.error)
+                  {
+                    chrome.runtime.sendMessage({ cmd: "reject_create_token" }, function(response) {
+                      console.log(response);
+                    });
+                    UIkit.modal("#modal-please-wait").hide();
+                    UIkit.modal.alert(result.error);
+                  } else {
+                    UIkit.modal("#modal-please-wait").hide();
+                    chrome.runtime.sendMessage({ cmd: "accept_create_token",tx:result }, function(response)
+                    {
+                      console.log(response);
+                      window.close();
+                    });
+                    //UIkit.modal.alert("NFT collection has been successfully created.");
+                  }
+                })
+                  .catch((e) => {
+                    UIkit.modal("#modal-please-wait").hide();
+                    UIkit.modal.alert(e.message);
+                    console.log(e);
+                    chrome.runtime.sendMessage({ cmd: "reject_create_token" }, function(response) {
+                      console.log(response);
+                    });
+                  });
+              }
+              , function() {
+                UIkit.modal("#modal-please-wait").hide();
+                console.log("Rejected.");
+                chrome.runtime.sendMessage({ cmd: "reject_create_token" }, function(response) {
+                  console.log(response);
+                });
+              });
+          }
+        })
+        .catch((e) => {
+          console.log("Create token failed");
+          console.log(e);
+          UIkit.modal("#modal-please-wait").hide();
+          UIkit.modal.alert(e.message);
+          chrome.runtime.sendMessage({ cmd: "reject_create_token" }, function(response) {
+            console.log(response);
+          });
+        });
+    },
       acceptCreateNFTCollection() {
         console.log("Accepting create nft collection request...");
         console.log(this.action);
         let vm = this;
         vm.process_message = "Creating NFT collection...";
         UIkit.modal("#modal-please-wait").show();
-        wallet.CreateNft(this.action.name, this.action.scheme, this.action.max_supply * 1e8, this.spendingPassword).then(function(tx) {
+        wallet.CreateNft(vm.action.name, vm.action.scheme, vm.action.max_supply * 1e8, vm.spendingPassword).then(function(tx) {
           UIkit.modal("#modal-please-wait").hide();
           if (tx.tx) {
             let msg = "<h3>Create NFT Collection</h3><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Do you confirm transaction?</p>";
@@ -2343,10 +2737,12 @@ export default {
                     UIkit.modal.alert(result.error);
                   } else {
                     UIkit.modal("#modal-please-wait").hide();
-                    UIkit.modal.alert("NFT collection has been successfully created.");
-                    chrome.runtime.sendMessage({ cmd: "accept_create_nft_collection" }, function(response) {
+                    chrome.runtime.sendMessage({ cmd: "accept_create_nft_collection",tx:result }, function(response)
+                    {
                       console.log(response);
+                      window.close();
                     });
+                    //UIkit.modal.alert("NFT collection has been successfully created.");
                   }
                 })
                   .catch((e) => {
@@ -2367,24 +2763,122 @@ export default {
               });
           }
         })
-          .catch((e) => {
-            console.log("Creat nft failed");
-            console.log(e);
-            UIkit.modal("#modal-please-wait").hide();
-            UIkit.modal.alert(e.message);
-            chrome.runtime.sendMessage({ cmd: "reject_create_nft_collection" }, function(response) {
-              console.log(response);
-            });
-          });
-      },
-      rejectCreateNFTCollection() {
-        try {
+        .catch((e) => {
+          console.log("Creat nft failed");
+          console.log(e);
+          UIkit.modal("#modal-please-wait").hide();
+          UIkit.modal.alert(e.message);
           chrome.runtime.sendMessage({ cmd: "reject_create_nft_collection" }, function(response) {
             console.log(response);
-            //window.close();
           });
-        } catch (e) {
-        }
+        });
+    },
+    rejectCreateTokenOrder() {
+      try {
+        chrome.runtime.sendMessage({ cmd: "reject_create_token_order" }, function(response) {
+          console.log(response);
+          //window.close();
+        });
+       } catch (e)
+       {
+       }
+    },
+    acceptCreateTokenPair()
+    {
+        let vm = this;
+        console.log("Accepting create token pair...");
+        console.log("Token ID ->" + this.action.token_id);
+        console.log("Pair ID ->" + this.action.pair_id);
+        vm.process_message = "Creating token pair...";
+        UIkit.modal("#modal-please-wait").show();
+        let TokenKey=buffer.Buffer.from(vm.pair_1_token.key).toString("hex");
+        console.log("Token Key -> " + TokenKey);
+        wallet.DeriveSpendingKeyFromStringHash(
+        "token/",
+        vm.pair_1_token.name+vm.pair_1_token.code,
+        vm.spendingPassword
+        ).then(function(SpendingKey)
+        {
+          let PrivateKey=buffer.Buffer.from(SpendingKey).toString("hex");
+          console.log("Spending key");
+          console.log(SpendingKey);
+          console.log("Private key");
+          console.log(PrivateKey);
+          let pk = bitcore.crypto.Blsct.mcl.deserializeHexStrToFr(PrivateKey);
+          let obj={
+            "token_1_id":(vm.pair_1_token?vm.pair_1_token.id:null),
+            "token_2_id":(vm.pair_2_token?vm.pair_2_token.id:null)
+          }
+          let message=JSON.stringify(obj);
+          console.log("Message");
+          console.log(message);
+          bitcore.Transaction.Blsct.AugmentedSign(pk,message)
+          .then(function(signature)
+          {
+            console.log("Signature");
+            console.log(signature);
+            bitcore.Transaction.Blsct.AugmentedVerify(TokenKey,message,signature)
+            .then(function(result)
+            {
+              console.log("AugmentedVerify Result -> " + result);
+              vm.process_message = (result?"Message successfully verified.":"Message verification failed...");
+              axios.post(vm.action.api_url + "CreateTokenPair", {
+                message:message,
+                signature:buffer.Buffer.from(signature).toString("hex"),
+                TokenKey: TokenKey
+              }, {}).then(function(retval)
+              {
+                console.log(retval.data);
+                if (retval.data.status == "token_pair_created") {
+                  chrome.runtime.sendMessage({
+                    cmd: "accept_create_token_pair",
+                    result: true
+                  }, function(response)
+                  {
+                  });
+                UIkit.modal.alert("<p>"+retval.data.message+"</p>");
+                } else {
+                  chrome.runtime.sendMessage({
+                    cmd: "reject_create_token_pair",
+                    result: false
+                  }, function(response) {
+                  });
+                  console.log("CreateTokenPair failed (#1) -> " + retval.data);
+                  UIkit.modal.alert("<p>Token pair cannot created (#1).</p><p>" + retval.data.message + "</p>");
+                }
+              }).catch(function(e)
+              {
+                chrome.runtime.sendMessage({
+                  cmd: "accept_create_token_pair",
+                  result: false
+                }, function(response) {
+                });
+                console.log("CreateTokenPair failed (#2) -> " + e.message);
+                UIkit.modal.alert("<p>Token pair cannot created (#2).</p><p>" + e.message + "</p><p>" + JSON.stringify(e) + "</p>");
+              });
+            });
+          });
+        });
+    },
+    rejectCreateToken() {
+      try {
+        chrome.runtime.sendMessage({ cmd: "reject_create_token" }, function(response) {
+          console.log(response);
+          //window.close();
+        });
+       } catch (e)
+       {
+       }
+      },
+    rejectCreateNFTCollection() {
+      try {
+        chrome.runtime.sendMessage({ cmd: "reject_create_nft_collection" }, function(response) {
+          console.log(response);
+          //window.close();
+        });
+       } catch (e)
+       {
+       }
       },
       acceptCreateNFT() {
         console.log("Accepting create nft request...");
@@ -2392,7 +2886,7 @@ export default {
         console.log(this.action);
         let vm = this;
         vm.process_message = "Minting NFT...";
-        setTimeout(function(){UIkit.modal("#modal-please-wait").show();}, 1000);
+        UIkit.modal("#modal-please-wait").show();
         wallet.MintNft(this.mint_nft_token_id, this.action.nft_id, this.privateAddress, this.action.scheme, this.spendingPassword).then(function(tx) {
           if (tx.tx) {
             let msg = "<h3>Mint NFT</h3><p>Transaction fee : " + sb.toBitcoin(tx.fee) + " xNAV</p><p>Do you confirm transaction?</p>";
@@ -2408,10 +2902,11 @@ export default {
                     UIkit.modal("#modal-please-wait").hide();
                   } else {
                     UIkit.modal("#modal-please-wait").hide();
-                    UIkit.modal.alert("NFT successfully minted.");
                     chrome.runtime.sendMessage({ cmd: "accept_create_nft" }, function(response) {
                       console.log(response);
+                      window.close();
                     });
+                    //UIkit.modal.alert("NFT successfully minted.");
                   }
                 })
                   .catch((e) => {
@@ -2460,6 +2955,7 @@ export default {
         }
       },
       acceptCreateNFTSellOrder() {
+        UIkit.modal("#modal-please-wait").show();
         let vm = this;
         console.log("Submitting nft sell order...");
         console.log(this.action.token_id);
@@ -2468,7 +2964,6 @@ export default {
         console.log(this.action.api_url);
         console.log(this.privateAddress);
         vm.process_message = "Submitting NFT Sell Order...";
-        UIkit.modal("#modal-please-wait").show();
         let amount = parseFloat((vm.action.price * 1e8).toFixed(0));
         try {
           vm.process_message = "Creating NFT proof...";
@@ -2477,7 +2972,7 @@ export default {
             let hex = Buffer.from(p.sig).toString("hex");
             let proof = { nftId: vm.action.nft_id, tokenId: vm.action.token_id, sig: Buffer.from(hex, "hex") };
             console.log(proof);
-            wallet.CreateSellNftOrder(vm.action.token_id, vm.action.nft_id, this.privateAddress, amount, vm.spendingPassword).then(function(order) {
+            wallet.CreateSellNftOrder(vm.action.token_id, vm.action.nft_id, vm.privateAddress, amount, vm.spendingPassword).then(function(order) {
               vm.process_message = "Creating NFT sell order";
               console.log(order);
               wallet.VerifyOrder(order).then((result) => {
@@ -2510,65 +3005,156 @@ export default {
                 axios.post(vm.action.api_url + "CreateSellNftOrder", {
                   order: order,
                   proof: proof
-                }, {}).then(function(retval) {
+                }, {}).then(function(retval)
+                {
                   console.log(retval.data);
                   if (retval.data.status == "order_created") {
                     chrome.runtime.sendMessage({
                       cmd: "accept_create_nft_sell_order",
-                      result: true
-                    }, function(response) {
+                      result: true,
+                      token_id:vm.action.token_id,
+                      nft_id:vm.action.nft_id
+                    }, function(response)
+                    {
+                      window.close();
                     });
-                    UIkit.modal.alert("<p>NFT sell order successfully created.</p>");
+                    //UIkit.modal.alert("<p>NFT sell order successfully created.</p>");
                   } else {
                     chrome.runtime.sendMessage({
                       cmd: "accept_create_nft_sell_order",
                       result: false
                     }, function(response) {
                     });
-                    UIkit.modal.alert("<p>NFT sell order cannot created.</p><p>" + retval.data.message + "</p>");
+                    console.log("CreateSellNftOrder failed (#1) -> " + retval.data);
+                    UIkit.modal.alert("<p>NFT sell order cannot created (#1).</p><p>" + retval.data.message + "</p>");
                   }
-                }).catch(function(e) {
-                  console.log(e);
+                }).catch(function(e)
+                {
                   chrome.runtime.sendMessage({
                     cmd: "accept_create_nft_sell_order",
                     result: false
                   }, function(response) {
                   });
-                  UIkit.modal.alert("<p>NFT sell order cannot created.</p><p>" + e.message + "</p>");
+                  console.log("CreateSellNftOrder failed (#2) -> " + e.message);
+                  UIkit.modal.alert("<p>NFT sell order cannot created (#2).</p><p>" + e.message + "</p><p>" + JSON.stringify(e) + "</p>");
                 });
               }
             })
-              .catch((e) => {
-                console.log("CreateSellNftOrder failed (#1) -> " + e.message);
-                chrome.runtime.sendMessage({ cmd: "accept_create_nft_sell_order", result: false }, function(response) {
-                });
-                UIkit.modal.alert("<p>NFT sell order cannot created.</p><p>" + e.message + "</p>");
+           .catch((e) =>
+           {
+              console.log(e);
+              console.log("CreateSellNftOrder failed (#3) -> " + e.message);
+              chrome.runtime.sendMessage({ cmd: "accept_create_nft_sell_order", result: false }, function(response) {
               });
-          }).catch((e) => {
+              UIkit.modal.alert("<p>NFT sell order cannot created (#3).</p><p>" + e.message + "</p><p>" + JSON.stringify(e) + "</p>");
+          });
+          }).catch((e) =>
+          {
             console.log(e);
-            console.log("CreateSellNftOrder failed (#2) -> " + e.message);
+            console.log("CreateSellNftOrder failed (#4) -> " + e.message);
             chrome.runtime.sendMessage({ cmd: "accept_create_nft_sell_order", result: false }, function(response) {
             });
-            UIkit.modal.alert("<p>NFT sell order cannot created.</p><p>" + e.message + "</p>");
+            UIkit.modal.alert("<p>NFT sell order cannot created (#4).</p><p>" + e.message + "</p><p>" + JSON.stringify(e) + "</p>");
           });
         } catch (e) {
-          console.log("CreateSellNftOrder failed (#3) -> " + e.message);
+          console.log("CreateSellNftOrder failed (#5) -> " + e.message);
           chrome.runtime.sendMessage({ cmd: "accept_create_nft_sell_order", result: false }, function(response) {
           });
-          UIkit.modal.alert("<p>NFT sell order cannot created.</p><p>" + e.message + "</p>");
+          UIkit.modal.alert("<p>NFT sell order cannot created (#5).</p><p>" + e.message + "</p><p>" + JSON.stringify(e) + "</p>");
         }
+      },
+      rejectCreateTokenOrder() {
+        try {
+          chrome.runtime.sendMessage({ cmd: "reject_create_token_order" }, function(response) {
+            console.log(response);
+            //window.close();
+          });
+        } catch (e) {
+        }
+      },
+      acceptCreateTokenOrder()
+      {
+        let vm = this;
+        console.log("Accept create token order");
+        vm.process_message="Creating token order...";
+        UIkit.modal("#modal-please-wait").show();
+        wallet.CreateTokenOrder(
+          (this.action.tokenInId?this.action.tokenInId:undefined),
+          (this.action.tokenInAmount*1e8),
+          this.action.payTo,
+          (this.action.tokenOutId?this.action.tokenOutId:undefined),
+          (this.action.tokenOutAmount*1e8),
+          this.spendingPassword).then(function(order)
+        {
+          console.log("Crete token order completed...");
+          console.log(order);
+          if (!vm.action.return_order && (vm.action.submit_order && vm.action.api_url))
+          {
+            vm.process_message = "Submitting token order...";
+            axios.post(vm.action.api_url + "CreateTokenOrder", {
+              address:vm.privateAddress,
+              orderType:vm.action.orderType,
+              order: order
+            }, {}).then(function(retval)
+            {
+              console.log(retval.data);
+              if (retval.data.status == "order_created")
+              {
+                console.log("Locking order inputs...")
+                wallet.LockOrderInputs(order).then(() => 
+                {
+                  console.log("Order inputs locked.");
+                })
+                .catch((e) =>
+                {
+                  console.log("Locking order inputs failed.")
+                  console.log(e);
+                }); 
+                chrome.runtime.sendMessage({
+                  cmd: "accept_create_token_order",
+                  result: true
+                }, function(response)
+                {
+                });
+              UIkit.modal.alert("<p>"+retval.data.message+"</p>");
+              } else {
+                chrome.runtime.sendMessage({
+                  cmd: "accept_create_token_order",
+                  result: false
+                }, function(response) {
+                });
+                console.log("CreateTokenOrder failed (#1) -> " + retval.data);
+                UIkit.modal.alert("<p>Token order cannot created (#1).</p><p>" + retval.data.message + "</p>");
+              }
+            }).catch(function(e)
+            {
+              chrome.runtime.sendMessage({
+                cmd: "accept_create_token_order",
+                result: false
+              }, function(response) {
+              });
+              console.log("CreateTokenOrder failed (#2) -> " + e.message);
+              UIkit.modal.alert("<p>Token order cannot created (#2).</p><p>" + e.message + "</p><p>" + JSON.stringify(e) + "</p>");
+            });
+          }
+        })
+        .catch((e) =>
+        {
+          console.log("CreateTokenOrder failed (#3) -> " + e.message);
+          UIkit.modal.alert("<p>Token order cannot created (#3).</p><p>" + e.message + "</p><p>" + JSON.stringify(e) + "</p>");
+        });
       },
       processAction() {
         let vm = this;
-        if (vm.action.network!=vm.network)
+        if (vm.is_action_processed) return;
+        if (vm.network&&vm.action.network&&vm.action.network!=vm.network)
         {
           chrome.runtime.sendMessage({ cmd: "reject_wrong_network", network:vm.network }, function(response)
           {
           });
-          UIkit.notification("<i class='fas fa-close'></i>&nbsp;Wallet is on different network ("+vm.network+"). Your dAPP currently is on "+vm.action.network+". Close wallet and re-open...", { status: "warning" });
+          UIkit.notification("<i class='fas fa-close'></i>&nbsp;Wallet is on different network ("+vm.network+"). Your dApp currently is on "+vm.action.network+". Close wallet and re-open...", { status: "warning" });
           return;
         }
-        if (vm.is_action_processed) return;
         vm.process_message="";
         console.log("Processing action...");
         console.log(vm.action);
@@ -2583,7 +3169,49 @@ export default {
             }
           });
         }
-        if (vm.action.method == "create_nft_collection") {
+        if (vm.action.method == "get_wallet_info") {
+          console.log("getting wallet info...");
+          chrome.runtime.sendMessage({ cmd: "get_wallet_info", wallet_info: vm.balance }, function(response)
+          {
+          });
+        }
+        else if (vm.action.method == "create_token_pair") {
+          console.log("creating token pair...");
+          let vm=this;
+          UIkit.modal("#modal-please-wait").show();
+          wallet.GetTokenInfo(vm.action.token_id).then((token) => 
+          {
+            console.log("token-pair-1");
+            console.log(token);
+            if (token.code) vm.pair_1_token=token;
+          }).
+          catch(function(e)
+          {
+              console.log("Error while getting pair 1 token info" + e.message);
+          });
+          wallet.GetTokenInfo(vm.action.pair_id).then((token) => 
+          {
+            console.log("token-pair-2");
+            console.log(token);
+            if (token.code) vm.pair_2_token=token;
+          }).
+          catch(function(e)
+          {
+              console.log("Error while getting pair 2 token info" + e.message);
+          });
+          console.log(vm.action.token_id);
+          console.log(vm.action.pair_id);
+          console.log(vm.action.api_url);
+          UIkit.modal("#modal-create-token-pair-confirm").show();
+        }
+        else if (vm.action.method == "create_token") {
+          console.log("creating token...");
+          console.log(vm.action.name);
+          console.log(vm.action.symbol);
+          console.log(vm.action.max_supply);
+          UIkit.modal("#modal-create-token-confirm").show();
+        }
+        else if (vm.action.method == "create_nft_collection") {
           console.log("creating nft collection...");
           console.log(vm.action.name);
           console.log(vm.action.scheme);
@@ -2598,7 +3226,7 @@ export default {
           UIkit.modal("#modal-create-nft-confirm").show();
         } else if (vm.action.method == "list_nft_collections") {
           console.log("listing nft collections...");
-          chrome.runtime.sendMessage({ cmd: "list_nft_collections", collections: vm.balance.nfts }, function(response)
+          chrome.runtime.sendMessage({ cmd: "list_nft_collections", collections: vm.balance.nfts, private_tokens:vm.privateTokens }, function(response)
           {
           });
         } else if (vm.action.method == "create_nft_sell_order") {
@@ -2614,7 +3242,89 @@ export default {
           } else {
             //UIkit.modal.alert("<p>Private tokens not loaded, please try again later</p>");
           }
-        } else if (vm.action.method == "accept_order") {
+        }
+         else if (vm.action.method == "create_token_order")
+         {
+            UIkit.modal("#modal-please-wait").show();
+            console.log("creating token order...");
+            console.log("TokenInId:"+vm.action.tokenInId);
+            console.log("TokenInAmount:"+vm.action.tokenInAmount);
+            console.log("PayTo:"+vm.action.payTo);
+            console.log("TokenOutId:"+vm.action.tokenOutId);
+            console.log("TokenOutAmount:"+vm.action.tokenOutAmount);
+            console.log("Getting TokenInId token details...");
+            vm.process_message="Getting TokenInId token details...";
+            wallet.GetTokenInfo(vm.action.tokenInId).then((token) => 
+            {
+              vm.token_0_code=token.code;
+              console.log("TokenInId code : " + token.code)
+              if (vm.action.tokenOutId)
+              {
+                console.log("Getting TokenOutId token details...");
+                vm.process_message="Getting TokenOutId token details...";
+                wallet.GetTokenInfo(vm.action.tokenOutId).then((token) => 
+                {
+                  vm.token_1_code=token.code;
+                  console.log("TokenOutId code : " + token.code)
+                  UIkit.modal("#modal-create-token-order-confirm").show();
+                })
+                .catch(function(e)
+                {
+                    console.log("Error while getting TokenOutId info" + e.message);
+                });
+              }
+              else
+              {
+                  vm.token_1_code="xNAV";
+                  console.log("TokenOutId code : " + vm.token_1_code)
+                  UIkit.modal("#modal-create-token-order-confirm").show();
+              }
+            })
+            .catch(function(e)
+            {
+               console.log("Error while getting tokenInId info " + e.message);
+            });
+        } else if (vm.action.method == "accept_token_order_id") {
+          console.log("accept token order confirm");
+          console.log("api id :" + vm.action.api_url);
+          console.log("order id :" + vm.action.order_id);
+          axios.post(vm.action.api_url + "GetTokenOrderDetails", {
+            order_id: vm.action.order_id
+          }, {}).then(function(retval)
+          {
+            vm.order=retval.data.order;
+            UIkit.modal("#modal-accept-token-order-confirm").show();
+          }).catch(function(e)
+          {
+            chrome.runtime.sendMessage({
+              cmd: "reject_accept_token_order",
+              result: false
+            }, function(response) {
+            });
+            console.log("GetTokenOrderDetails failed (#1) -> " + e.message);
+            UIkit.modal.alert("<p>Token order details cannot be retrieved (#1).</p><p>" + e.message + "</p><p>" + JSON.stringify(e) + "</p>");
+          });
+        } else if (vm.action.method == "cancel_token_order_id") {
+          console.log("cancel token order confirm");
+          console.log("api id :" + vm.action.api_url);
+          console.log("order id :" + vm.action.order_id);
+          axios.post(vm.action.api_url + "GetTokenOrderDetails", {
+            order_id: vm.action.order_id
+          }, {}).then(function(retval)
+          {
+            vm.order=retval.data.order;
+            UIkit.modal("#modal-cancel-token-order-confirm").show();
+          }).catch(function(e)
+          {
+            chrome.runtime.sendMessage({
+              cmd: "reject_cancel_token_order",
+              result: false
+            }, function(response) {
+            });
+            console.log("GetTokenOrderDetails failed (#1) -> " + e.message);
+            UIkit.modal.alert("<p>Token order details cannot be retrieved (#1).</p><p>" + e.message + "</p><p>" + JSON.stringify(e) + "</p>");
+          });
+        }  else if (vm.action.method == "accept_order") {
           console.log("accept order confirm");
           console.log(vm.action.order);
           UIkit.modal("#modal-accept-nft-order-confirm").show();
@@ -2674,23 +3384,35 @@ export default {
                 });
               } catch (e) {
               }
-              if (vm.action && vm.action.method != "list_nft_collections") {
+              if (vm.action && vm.action.method != "list_nft_collections" && vm.action.method != "get_wallet_info") {
                 vm.processAction();
               }
             });
-            wallet.ClearNodeList();
-            wallet.AddNode('electrum.nextwallet.org', 40004, 'wss');
+            if (vm.network=="mainnet")
+            {
+              wallet.ClearNodeList();
+              wallet.AddNode('electrum.nextwallet.org', 40004, 'wss');
+            }
             await wallet.Connect();
           });
           wallet.on("connected", async (node) => {
             console.log("connected to -> " + node);
+            //UIkit.notification("Connected to " + node, { status: "success" });
             vm.current_node = node;
             vm.status = "Connected, waiting for sync...";
+          });
+          wallet.on('disconnected', () => {
+            //UIkit.notification("Disconnected", { status: "danger",timeout:5000 });
+            console.log("Disconnected from node, trying to reconnect...");
+            //wallet.Connect();
           });
           wallet.on("sync_status", async (progress, pending) => {
             vm.progress = progress;
             vm.status = "Sync progress : % " + progress;
           });
+          wallet.on('db_open', () => console.log(`database is now open`));
+          wallet.on('db_closed', () => console.log(`database is now closed`));
+          wallet.on('no_servers_available', () => console.log(`no servers is available`));
           wallet.on("db_load_error", async (e) => {
             vm.status = "Database load error";
             vm.db_load_failed = true;
@@ -2763,13 +3485,7 @@ export default {
       setLatestUsedWallet(walletName,password)
       {
         console.log("Saving last used wallet details...");
-        chrome.storage.session.set({ last_active_wallet: walletName, password: password }, function()
-        {
-          chrome.storage.session.get(["last_active_wallet","password"], function(result)
-          {
-            console.log(result);
-          });
-        });
+        chrome.storage.session.set({ last_active_wallet: walletName, password: password }, function(){});
       },
       initWallet()
       {
@@ -2795,12 +3511,11 @@ export default {
                     let open_password=vm.decrypt(w.open_password);
                     let spending_password=vm.decrypt(w.spending_password);
                     vm.spendingPassword=spending_password;
+                    console.log("Spending password : " + vm.spendingPassword);
                     if (open_password!=false&&spending_password!=false)
                     {
                       vm.setLatestUsedWallet(vm.active_wallet_name,vm.password);
                       console.log("Password verified...");
-                      console.log(open_password);
-                      console.log(spending_password);
                       console.log("Loading existing wallet : " + vm.active_wallet_name);
                       vm.walletLoginSuccess = true;
                       vm.page = "wallet-loading";
@@ -2812,10 +3527,9 @@ export default {
                           spendingPassword: spending_password,
                           log: true
                         });
+                      window.wallet=wallet;
                       vm.setLatestUsedWallet(vm.active_wallet_name,vm.password);
                       vm.subcribeWalletEvents();
-                      window.wallet = wallet;
-                      window.njs = njs;
                     }
                     else
                     {
@@ -2833,19 +3547,15 @@ export default {
           else
           {
             console.log("Creating and loading new wallet : " + vm.active_wallet_name + "(" + vm.walletType + ")" + "(" + vm.network + ")");
-            console.log("Password : " + vm.password);
             let randomOpenPassword=this.generateRandomPassword(64);
             let randomSpendingPassword=this.generateRandomPassword(64);
             vm.spendingPassword=randomSpendingPassword;
-            console.log("Open password:"+randomOpenPassword);
-            console.log("Spending password:"+randomSpendingPassword);
             try
             {
                 console.log("Getting wallet details from chrome storage...");
                 chrome.storage.local.get({ wallets: [] }, function(result)
                 {
                   var wallets = result.wallets;
-                  console.log(wallets);
                   let is_wallet_found=false;
                   wallets.forEach(w => 
                   {
@@ -2869,9 +3579,6 @@ export default {
                   }
                   chrome.storage.local.set({ wallets: wallets }, function()
                   {
-                    chrome.storage.local.get("wallets", function(result) {
-                      console.log(result.wallets);
-                    });
                   });
                   vm.setLatestUsedWallet(vm.active_wallet_name,vm.password);
                   wallet = new njs.wallet.WalletFile(
@@ -2885,9 +3592,8 @@ export default {
                     zapwallettxes: zapwallettxes,
                     log: true
                   });
+                  window.wallet=wallet;
                   vm.subcribeWalletEvents();
-                  window.wallet = wallet;
-                  window.njs = njs;
                 });
             }
             catch (e)
@@ -3052,5 +3758,26 @@ input:checked + .uk-switch-slider.uk-switch-big:before {
     background-color: #640ac4 !important;
     color: #fff;
     border-radius: 3px;
+}
+.badge-success
+{
+   background-color: rgb(116, 167, 0) !important;
+}
+.badge-danger
+{
+  background-color: rgb(234, 0, 112) !important;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    font-size: .75em;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
 }
 </style>

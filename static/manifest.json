@@ -1,7 +1,7 @@
 {
   "name": "Navcoin Wallet",
   "description": "Navcoin Wallet Chrome Extension",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "manifest_version": 3,
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtMJgF7cQvZh8ITFSiM31pjrsOTg+H+aUlZhvtq5peMswQZYVdkeRAw60CrLq5rgityfZs95TitkUkybQXQsC7kSM8ecBfuKZ1elZ1oJYiyvgMa3n8uEhqjAHouAxah54qhTCiGbxj4gzY6ENnAKoJ0+v+JTT1NO4sBCj4oYYy+c7Jn2T772nKSnJ1Fzb3AM1xQSkJzTb8XlXamv/AoWkiCmWZBfcRa7krosPcpsxh68RBsOLijtGA2+I2P8S7LisqfT8zou05eC71wdX4bpS5ukIdim76q/AOI0m+mxZGGgy3e/Pu7r5kCE4XtLYPDnbNE2+B4b/NL9NDgvxka4wPQIDAQAB",
   "background": {
